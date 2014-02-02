@@ -16,3 +16,4 @@ while i < text.Length do
   else
     printfn "%04x %04x     ?" i w
     i <- i + 2
+
