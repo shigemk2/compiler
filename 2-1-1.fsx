@@ -1,4 +1,4 @@
-let aout = System.IO.File.ReadAllBytes "../../a.out"
+let aout = System.IO.File.ReadAllBytes "write-1.out"
 let read16 (a:byte[]) b =
   (int a.[b]) ||| ((int a.[b+1]) <<< 8)
 let tsize = read16 aout 2

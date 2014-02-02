@@ -1,4 +1,4 @@
-let aout = System.IO.File.ReadAllBytes "a.out"
+let aout = System.IO.File.ReadAllBytes "write-1.out"
 
 let read16 (src:byte[]) index =
      (int src.[index]) ||| ((int src.[index + 1]) <<< 8)
