@@ -1,7 +1,7 @@
 let aout = System.IO.File.ReadAllBytes "write-1.out"
 
 let read16 (src:byte[]) index =
-     (int src.[index]) ||| ((int src.[index + 1]) <<< 8)
+    (int src.[index]) ||| ((int src.[index + 1]) <<< 8)
 
 let textsize = read16 aout 2
 printfn "textsize = %d (0x%x)" textsize textsize
