@@ -2,7 +2,7 @@ let aout = System.IO.File.ReadAllBytes "write-6.out"
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b+1]) <<< 8)
 let write16 (a:byte[]) b c =
-    a.[b] <- byte ceil
+    a.[b] <- byte c
     a.[b + 1] <- byte (c >>> 8)
 let tsize = read16 aout 2
 let dsize = read16 aout 4
