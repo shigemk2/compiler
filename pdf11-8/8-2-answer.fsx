@@ -64,6 +64,10 @@ while pc < tsize do
         mem.[r1 + read16 mem (pc + 2)] <- byte r0
         pc <- pc + 4
     | 0x15f7 ->
+        printfn "%x" (pc)
+        printfn "%x" (pc + 6)
+        printfn "%x" (read16 mem (pc + 4))
+        printfn "%x" (pc + 6 + read16 mem (pc + 4))
         write16 mem (pc + 6 + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
     | 0x95f7 ->
