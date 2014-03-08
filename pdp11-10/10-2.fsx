@@ -1,4 +1,6 @@
-let aout = System.IO.File.ReadAllBytes "write-7.out"
+let args = System.Environment.GetCommandLineArgs()
+
+let aout = System.IO.File.ReadAllBytes args.[2]
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b+1]) <<< 8)
 let write16 (a:byte[]) b c =
