@@ -40,7 +40,9 @@ while pc < tsize do
         let t, r = (w >>> 3 &&& 7), w &&& 7
         show oldpc 4 (sprintf "mov $%x, %s" (fetch()) (getopr t r))
     | 0o112761 ->
-        show oldpc 6 (sprintf "movb $%x, %x(r1)" (fetch()) (read16 mem (pc + 4)))
+        let opr1 = fetch()
+        let opr2 = fetch()
+        show oldpc 6 (sprintf "movb $%x, %x(r1)" opr1 opr2)
     | 0o112711 ->
         show oldpc 4 (sprintf "movb $%x, (r1)" (fetch()))
     | 0o110011 ->
@@ -56,8 +58,14 @@ while pc < tsize do
         show pc 2 "; arg"
         show pc 2 "; arg"
     | 0o112767 ->
-        show oldpc 6 (sprintf "movb $%x, %04x" (fetch()) (pc + 6 + read16 mem (pc + 4)))
+        // 中で値をとったら進む、を繰り返す=fetch(CPU用語)
+        let opr1 = fetch()
+        let opr2 = fetch()
+        show oldpc 6 (sprintf "movb $%x, %04x" opr1 opr2)
     | 0o162767 ->
-        show oldpc 6 (sprintf "sub $%x, %04x" (fetch()) (pc + 6 + read16 mem (pc + 4)))
+        // 中で値をとったら進む、を繰り返す=fetch(CPU用語)
+        let opr1 = fetch()
+        let opr2 = fetch()
+        show oldpc 6 (sprintf "sub $%x, %04x" opr1 opr2)
     | _ ->
         show oldpc 2 "???"
