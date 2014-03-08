@@ -37,6 +37,18 @@ let getopr t r =
         | 6 -> sprintf "%x(r%d)" (fetch()) r
         | _ -> "??"
 
+// mnemonic
+// SSDD系のoperationのメッセージを得る
+let showssdd oldpc w mne =
+    let opr1 = getopr (w >>> 9 &&& 7) (w >>> 6 &&& 7)
+    let opr2 = getopr (w >>> 3 &&& 7) (w       &&& 7)
+    show oldpc (sprintf "%s %s, %s" mne opr1 opr2)
+
+// DD系のoperationのメッセージを得る
+let showdd oldpc w mne =
+    let opr1 = getopr (w >>> 9 &&& 7) (w >>> 6 &&& 7)
+    show oldpc (sprintf "%s %s" mne opr1)
+
 while pc < tsize do
     let oldpc = pc
     match fetch() with
@@ -44,23 +56,24 @@ while pc < tsize do
     // (pc + 6 + read16 mem (pc + 4)) fetchが全部済んだ段階のプログラムカウンター
     // 中で値をとったら進む、を繰り返す=fetch(CPU用語)
     // // switch-caseの高級なやつで、式が書ける(パターンマッチ)
-    | w when (w >>> 12  = 0o01) ->
-        let t1, r1 = (w >>> 9 &&& 7), (w >>> 6 &&& 7)
-        let t2, r2 = (w >>> 3 &&& 7), (w       &&& 7)
-        show oldpc (sprintf "mov %s, %s" (getopr t1 r1) (getopr t2 r2))
-    | w when (w >>> 12  = 0o11) ->
-        let t1, r1 = (w >>> 9 &&& 7), (w >>> 6 &&& 7)
-        let t2, r2 = (w >>> 3 &&& 7), (w       &&& 7)
-        show oldpc (sprintf "movb %s, %s" (getopr t1 r1) (getopr t2 r2))
-    | w when (w >>> 12  = 0o16) ->
-        let t1, r1 = (w >>> 9 &&& 7), (w >>> 6 &&& 7)
-        let t2, r2 = (w >>> 3 &&& 7), (w       &&& 7)
-        show oldpc (sprintf "sub %s, %s" (getopr t1 r1) (getopr t2 r2))
-    | 0o000300 ->
-        show oldpc "swab r0"
-    | 0o104401 ->
+    | w when (w >>> 6  = 0o0003) -> showdd oldpc w "swab"
+    | w when (w >>> 12  = 0o01) -> showssdd oldpc w "mov"
+    | w when (w >>> 12  = 0o11) -> showssdd oldpc w "movb"
+    | w when (w >>> 12  = 0o16) -> showssdd oldpc w "sub"
+    // 16進数 1桁4ビット
+    // 8進数  1桁3ビット
+    // 16ビット部分をまとめて命令
+    // 命令の中身をopcodeとoperand
+    // opcode operand
+    // [89][01]
+    // trap
+    // 4444
+    // その他
+    // 133333
+    // 104777 &&& 177400
+    | 0o104401 (* 0x8901 *) ->
         show oldpc "sys 1 ; exit"
-    | 0o104404 ->
+    | 0o104404 (* 0x8904 *) ->
         show oldpc "sys 4 ; write"
         // シャドウイング 同じ名前の別の変数を定義する OCaml由来
         let oldpc = pc
