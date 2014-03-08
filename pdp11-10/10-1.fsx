@@ -1,4 +1,6 @@
-let aout = System.IO.File.ReadAllBytes "write-8.out"
+let args = System.Environment.GetCommandLineArgs()
+
+let aout = System.IO.File.ReadAllBytes args.[2]
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b+1]) <<< 8)
 let tsize = read16 aout 2
@@ -19,6 +21,8 @@ let getopr t r =
     match t with
     | 0 -> sprintf "r%d" r
     | 1 -> sprintf "(r%d)" r
+    | 6 -> let opr = fetch()
+           sprintf "%04x" (pc + opr)
     | _ -> "??"
 
 while pc < tsize do
@@ -28,14 +32,14 @@ while pc < tsize do
         show oldpc "mov r0, (r1)"
     | 0o010261 ->
         show oldpc (sprintf "mov r2, %x(r1)" (fetch()))
-    | 0o012767 ->
-        // let opr1, opr2 = fetch(), fetch() このような書き方だと環境依存で実行順序が保証されない
-        let opr1 = fetch()
-        let opr2 = fetch() // (pc + 6 + read16 mem (pc + 4)) fetchが全部済んだ段階のプログラムカウンター
-        // 中で値をとったら進む、を繰り返す=fetch(CPU用語)
-        show oldpc (sprintf "mov $%x, %04x" opr1 (pc + opr2))
-    // switch-caseの高級なやつで、式が書ける(パターンマッチ)
-    | w when (w &&& 0o177770) = 0o012700 ->
+    // | 0o012767 ->
+    //     // let opr1, opr2 = fetch(), fetch() このような書き方だと環境依存で実行順序が保証されない
+    //     let opr1 = fetch()
+    //     let opr2 = fetch() // (pc + 6 + read16 mem (pc + 4)) fetchが全部済んだ段階のプログラムカウンター
+    //     // 中で値をとったら進む、を繰り返す=fetch(CPU用語)
+    //     show oldpc (sprintf "mov $%x, %04x" opr1 (pc + opr2))
+    // // switch-caseの高級なやつで、式が書ける(パターンマッチ)
+    | w when (w &&& 0o177770) = 0o012700 || w = 0o012767 ->
         let opr1 = fetch()
         let t, r = (w >>> 3 &&& 7), w &&& 7
         show oldpc (sprintf "mov $%x, %s" opr1 (getopr t r))
