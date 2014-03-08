@@ -11,6 +11,12 @@ let dsize = read16 aout 4
 let mem = aout.[16 .. 16 + tsize + dsize - 1]
 
 let mutable r0, r1, r2, pc = 0, 0, 0, 0
+
+let fetch() =
+    let ret = read16 mem pc
+    pc <- pc + 2
+    ret
+
 while pc < tsize do
     match read16 mem pc with
     | 0x1009 ->
