@@ -19,65 +19,65 @@ let fetch() =
 
 while pc < tsize do
     match read16 mem pc with
-    | 0x1009 ->
+    | 0o010011 ->
         write16 mem r1 r0
         pc <- pc + 2
-    | 0x10b1 ->
+    | 0o010261 ->
         write16 mem (r1 + read16 mem (pc + 2)) r2
         pc <- pc + 4
-    | 0x15b1 ->
+    | 0o012661 ->
         r0 <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
-    | 0x15c0 ->
+    | 0o012700 ->
         r0 <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
-    | 0x15c1 ->
+    | 0o012701 ->
         r1 <- read16 mem (pc + 2)
         pc <- pc + 4
-    | 0x15c2 ->
+    | 0o012702 ->
         r2 <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
-    | 0x15c9 ->
+    | 0o012711 ->
         write16 mem r1 (read16 mem (pc + 2))
         pc <- pc + 4
-    | 0x15f1 ->
+    | 0o012761 ->
         write16 mem (r1 + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
-    | 0x95c9 ->
+    | 0o112711 ->
         mem.[r1] <- mem.[pc + 2]
         pc <- pc + 4
-    | 0x95f1 ->
+    | 0o112761 ->
         mem.[r1 + read16 mem (pc + 4)] <- mem.[pc + 2]
         pc <- pc + 6
     // sys 1 ; exit
-    | 0x8901 ->
+    | 0o104401 ->
         exit r0
     // sys 4 ; write
-    | 0x8904 ->
+    | 0o104404 ->
         let arg1 = read16 mem (pc + 2)
         let arg2 = read16 mem (pc + 4)
         let bytes = mem.[arg1 .. arg1 + arg2 - 1]
         printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
         pc <- pc + 6
-    | 0x00c0 ->
+    | 0o003000 ->
         r0 <- ((r0 &&& 0xff) <<< 8) ||| ((r0 &&& 0xff00) >>> 8)
         pc <- pc + 2
-    | 0x9009 ->
+    | 0o110011 ->
         mem.[r1] <- byte r0
         pc <- pc + 2
-    | 0x9031 ->
+    | 0o110061 ->
         mem.[r1 + read16 mem (pc + 2)] <- byte r0
         pc <- pc + 4
-    | 0x15f7 ->
+    | 0o012767 ->
         write16 mem (pc + 6 + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
-    | 0x95f7 ->
+    | 0o112767 ->
         mem.[r1 + pc + 6 + read16 mem (pc + 4)] <- mem.[pc + 2]
         pc <- pc + 6
-    | 0xe5f7 ->
+    | 0o162767 ->
         let addr = pc + 6 + read16 mem (pc + 4)
         write16 mem addr ((read16 mem addr) - (read16 mem (pc + 2)))
         pc <- pc + 6
