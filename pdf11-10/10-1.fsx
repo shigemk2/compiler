@@ -9,6 +9,13 @@ let show len dis =
     let words = [ for i in pc .. 2 .. pc + len - 1 -> sprintf "%04x" (read16 mem i) ]
     printfn "%04x: %-14s  %s" pc (String.concat " " words) dis
     pc <- pc + len
+// operand取得 t type r register
+let getopr t r =
+    match t with
+    | 0 -> sprintf "r%d" r
+    | 1 -> sprintf "(r%d)" r
+    | _ -> "??"
+
 while pc < tsize do
     match read16 mem pc with
     | 0o010011 ->
@@ -17,19 +24,15 @@ while pc < tsize do
         show 4 (sprintf "mov r2, %x(r1)" (read16 mem (pc + 2)))
     // switch-caseの高級なやつで、式が書ける(パターンマッチ)
     | w when (w &&& 0o177770) = 0o012700 ->
-        match w >>> 3 &&& 7 with
-        | 0 ->
-            show 4 (sprintf "mov $%x, r%d" (read16 mem (pc + 2)) (w &&& 7))
-        | 1 ->
-            show 4 (sprintf "mov $%x, (r%d)" (read16 mem (pc + 2)) (w &&& 7))
-        | _ ->
-            show 2 "???"
+        let w2 = read16 mem (pc + 2)
+        let t, r = (w >>> 3 &&& 7), w &&& 7
+        show 4 (sprintf "mov $%x, %s" w2 (getopr t r))
     | 0o112761 ->
         show 6 (sprintf "movb $%x, %x(r1)" (read16 mem (pc + 2)) (read16 mem (pc + 4)))
     | 0o112711 ->
         show 4 (sprintf "movb $%x, (r1)" (read16 mem (pc + 2)))
     | 0o110011 ->
-        show 2 "mov r0, (r1)"
+        show 2 "movb r0, (r1)"
     | 0o110061 ->
         show 4 (sprintf "movb r0, %x(r1)" (read16 mem (pc + 2)))
     | 0o000300 ->
