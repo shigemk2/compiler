@@ -10,15 +10,13 @@ let show len dis =
     printfn "%04x: %-14s  %s" pc (String.concat " " words) dis
     pc <- pc + len
 while pc < tsize do
-    let w = read16 mem pc
-    match w with
+    match read16 mem pc with
     | 0o010011 ->
         show 2 "mov r0, (r1)"
     | 0o010261 ->
         show 4 (sprintf "mov r2, %x(r1)" (read16 mem (pc + 2)))
-    | 0o012700
-    | 0o012701
-    | 0o012702 ->
+    // switch-caseの高級なやつで、式が書ける(パターンマッチ)
+    | w when (w &&& 0o177770) = 0o012700 ->
         show 4 (sprintf "mov $%x, r%d" (read16 mem (pc + 2)) (w &&& 0o7))
     | 0o012711 ->
         show 4 (sprintf "mov $%x, (r1)" (read16 mem (pc + 2)))
