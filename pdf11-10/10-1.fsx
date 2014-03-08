@@ -18,8 +18,9 @@ while pc < tsize do
     // switch-caseの高級なやつで、式が書ける(パターンマッチ)
     | w when (w &&& 0o177770) = 0o012700 ->
         show 4 (sprintf "mov $%x, r%d" (read16 mem (pc + 2)) (w &&& 0o7))
-    | 0o012711 ->
-        show 4 (sprintf "mov $%x, (r1)" (read16 mem (pc + 2)))
+    // | 0o012711 ->
+    | w when (w &&& 0o177770) = 0o012710 ->
+        show 4 (sprintf "mov $%x, (r%d)" (read16 mem (pc + 2)) (w &&& 0o7))
     | 0o112761 ->
         show 6 (sprintf "movb $%x, %x(r1)" (read16 mem (pc + 2)) (read16 mem (pc + 4)))
     | 0o112711 ->
