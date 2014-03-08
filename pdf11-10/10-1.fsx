@@ -36,9 +36,9 @@ while pc < tsize do
         show oldpc (sprintf "mov $%x, %04x" opr1 (pc + opr2))
     // switch-caseの高級なやつで、式が書ける(パターンマッチ)
     | w when (w &&& 0o177770) = 0o012700 ->
-        // let w2 = read16 mem (pc + 2)
+        let opr1 = fetch()
         let t, r = (w >>> 3 &&& 7), w &&& 7
-        show oldpc (sprintf "mov $%x, %s" (fetch()) (getopr t r))
+        show oldpc (sprintf "mov $%x, %s" opr1 (getopr t r))
     | 0o112761 ->
         let opr1 = fetch()
         let opr2 = fetch()
