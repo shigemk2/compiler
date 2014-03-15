@@ -30,15 +30,8 @@ while pc < tsize do
         r.[0] <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
-    | 0o012700 ->
-        r.[0] <- read16 mem (pc + 2)
-        pc <- pc + 4
-    // mov
-    | 0o012701 ->
-        r.[1] <- read16 mem (pc + 2)
-        pc <- pc + 4
-    | 0o012702 ->
-        r.[2] <- read16 mem (pc + 2)
+    | w when (w >>> 6 = 0o0127) ->
+        r.[(w &&& 7)] <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
     | 0o012711 ->
