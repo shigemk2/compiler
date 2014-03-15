@@ -10,7 +10,7 @@ let tsize = read16 aout 2
 let dsize = read16 aout 4
 let mem = aout.[16 .. 16 + tsize + dsize - 1]
 
-let mutable r0, r1, r2, pc = 0, 0, 0, 0
+let mutable pc = 0
 let r = [| 0; 0; 0; 0; 0; 0; 0; |];;
 
 let fetch() =
@@ -21,41 +21,41 @@ let fetch() =
 while pc < tsize do
     match read16 mem pc with
     | 0o010011 ->
-        write16 mem r1 r0
+        write16 mem r.[1] r.[0]
         pc <- pc + 2
     | 0o010261 ->
-        write16 mem (r1 + read16 mem (pc + 2)) r2
+        write16 mem (r.[1] + read16 mem (pc + 2)) r.[2]
         pc <- pc + 4
     | 0o012661 ->
-        r0 <- read16 mem (pc + 2)
+        r.[0] <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
     | 0o012700 ->
-        r0 <- read16 mem (pc + 2)
+        r.[0] <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
     | 0o012701 ->
-        r1 <- read16 mem (pc + 2)
+        r.[1] <- read16 mem (pc + 2)
         pc <- pc + 4
     | 0o012702 ->
-        r2 <- read16 mem (pc + 2)
+        r.[2] <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
     | 0o012711 ->
-        write16 mem r1 (read16 mem (pc + 2))
+        write16 mem r.[1] (read16 mem (pc + 2))
         pc <- pc + 4
     | 0o012761 ->
-        write16 mem (r1 + read16 mem (pc + 4)) (read16 mem (pc + 2))
+        write16 mem (r.[1] + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
     | 0o112711 ->
-        mem.[r1] <- mem.[pc + 2]
+        mem.[r.[1]] <- mem.[pc + 2]
         pc <- pc + 4
     | 0o112761 ->
-        mem.[r1 + read16 mem (pc + 4)] <- mem.[pc + 2]
+        mem.[r.[1] + read16 mem (pc + 4)] <- mem.[pc + 2]
         pc <- pc + 6
     // sys 1 ; exit
     | 0o104401 ->
-        exit r0
+        exit r.[0]
     // sys 4 ; write
     | 0o104404 ->
         let arg1 = read16 mem (pc + 2)
@@ -64,19 +64,19 @@ while pc < tsize do
         printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
         pc <- pc + 6
     | 0o003000 ->
-        r0 <- ((r0 &&& 0xff) <<< 8) ||| ((r0 &&& 0xff00) >>> 8)
+        r.[0] <- ((r.[0] &&& 0xff) <<< 8) ||| ((r.[0] &&& 0xff00) >>> 8)
         pc <- pc + 2
     | 0o110011 ->
-        mem.[r1] <- byte r0
+        mem.[r.[1]] <- byte r.[0]
         pc <- pc + 2
     | 0o110061 ->
-        mem.[r1 + read16 mem (pc + 2)] <- byte r0
+        mem.[r.[1] + read16 mem (pc + 2)] <- byte r.[0]
         pc <- pc + 4
     | 0o012767 ->
         write16 mem (pc + 6 + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
     | 0o112767 ->
-        mem.[r1 + pc + 6 + read16 mem (pc + 4)] <- mem.[pc + 2]
+        mem.[r.[1] + pc + 6 + read16 mem (pc + 4)] <- mem.[pc + 2]
         pc <- pc + 6
     | 0o162767 ->
         let addr = pc + 6 + read16 mem (pc + 4)
