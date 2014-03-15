@@ -11,6 +11,7 @@ let dsize = read16 aout 4
 let mem = aout.[16 .. 16 + tsize + dsize - 1]
 
 let mutable r0, r1, r2, pc = 0, 0, 0, 0
+let r = [| 0; 0; 0; 0; 0; 0; 0; |];;
 
 let fetch() =
     let ret = read16 mem pc
