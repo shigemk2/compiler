@@ -21,8 +21,8 @@ let main file =
 
     let mutable running = true
 
-    // operand書き込み t type r register
-    let writeopr t rn v =
+    // dd書き込み t type rn register v destination
+    let writedd t rn v =
         match t with
         | 0 -> r.[rn] <- v
         // | 1 -> sprintf "(r%d)" r
@@ -41,7 +41,7 @@ let main file =
             r.[7] <- r.[7] + 4
         | w when (w >>> 3 = 0o01270) ->
             // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
-            writeopr 0 (w &&& 7) (fetch())
+            writedd 0 (w &&& 7) (fetch())
         | 0o012711 ->
             write16 mem r.[1] (fetch())
         | 0o012761 ->
