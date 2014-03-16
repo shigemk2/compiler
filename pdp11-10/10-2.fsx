@@ -1,5 +1,6 @@
 module hoge
-let mutable r0, r1, r2, pc = 0, 0, 0, 0
+let mutable pc = 0
+let r = [| 0; 0; 0; |]
 
 let main file =
     let aout = System.IO.File.ReadAllBytes file
@@ -24,36 +25,36 @@ let main file =
     while running && pc < tsize do
         match fetch() with
         | 0o010011 ->
-            write16 mem r1 r0
+            write16 mem r.[1] r.[0]
         | 0o010261 ->
-            write16 mem (r1 + fetch()) r2
+            write16 mem (r.[1] + fetch()) r.[2]
         | 0o012661 ->
-            r0 <- read16 mem (pc + 2)
+            r.[0] <- read16 mem (pc + 2)
             pc <- pc + 4
         // mov
         | 0o012700 ->
-            r0 <- fetch()
+            r.[0] <- fetch()
         // mov
         | 0o012701 ->
-            r1 <- fetch()
+            r.[1] <- fetch()
         | 0o012702 ->
-            r2 <- fetch()
+            r.[2] <- fetch()
         // mov
         | 0o012711 ->
-            write16 mem r1 (fetch())
+            write16 mem r.[1] (fetch())
         | 0o012761 ->
             let w1 = fetch()
             let w2 = fetch()
-            write16 mem (r1 + w2) w1
+            write16 mem (r.[1] + w2) w1
         | 0o112711 ->
-            mem.[r1] <- byte (fetch())
+            mem.[r.[1]] <- byte (fetch())
         | 0o112761 ->
             let w1 = fetch()
             let w2 = fetch()
-            mem.[r1 + w2] <- byte w1
+            mem.[r.[1] + w2] <- byte w1
         // sys 1 ; exit
         | 0o104401 ->
-            // exit r0
+            // exit r.[0]
             running <- false
         // sys 4 ; write
         | 0o104404 ->
@@ -62,11 +63,11 @@ let main file =
             let bytes = mem.[arg1 .. arg1 + arg2 - 1]
             printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
         | 0o000300 ->
-            r0 <- ((r0 &&& 0xff) <<< 8) ||| ((r0 &&& 0xff00) >>> 8)
+            r.[0] <- ((r.[0] &&& 0xff) <<< 8) ||| ((r.[0] &&& 0xff00) >>> 8)
         | 0o110011 ->
-            mem.[r1] <- byte r0
+            mem.[r.[1]] <- byte r.[0]
         | 0o110061 ->
-            mem.[r1 + fetch()] <- byte r0
+            mem.[r.[1] + fetch()] <- byte r.[0]
         | 0o012767 ->
             let w1 = fetch()
             let w2 = fetch()
@@ -74,7 +75,7 @@ let main file =
         | 0o112767 ->
             let w1 = fetch()
             let w2 = fetch()
-            mem.[r1 + w2] <- byte w1
+            mem.[r.[1] + w2] <- byte w1
         | 0o162767 ->
             let w1 = fetch()
             let w2 = fetch()
