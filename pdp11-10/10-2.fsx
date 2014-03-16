@@ -76,9 +76,10 @@ let main file =
             let w2 = fetch()
             mem.[r1 + w2] <- byte w1
         | 0o162767 ->
-            let addr = pc + 6 + read16 mem (pc + 4)
-            write16 mem addr ((read16 mem addr) - (read16 mem (pc + 2)))
-            pc <- pc + 6
+            let w1 = fetch()
+            let w2 = fetch()
+            let addr = pc + w2
+            write16 mem addr ((read16 mem addr) - (w1))
         | w ->
             printfn "%04x: %04x ???" pc w
             running <- false
