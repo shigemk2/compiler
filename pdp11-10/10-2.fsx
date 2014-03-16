@@ -25,10 +25,8 @@ let main file =
         match fetch() with
         | 0o010011 ->
             write16 mem r1 r0
-            pc <- pc + 2
         | 0o010261 ->
-            write16 mem (r1 + read16 mem (pc + 2)) r2
-            pc <- pc + 4
+            write16 mem (r1 + fetch()) r2
         | 0o012661 ->
             r0 <- read16 mem (pc + 2)
             pc <- pc + 4
