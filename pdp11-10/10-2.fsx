@@ -1,6 +1,6 @@
-let args = System.Environment.GetCommandLineArgs()
+module hoge
+let aout = System.IO.File.ReadAllBytes "../pdp11-3/write-1.out"
 
-let aout = System.IO.File.ReadAllBytes args.[2]
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b+1]) <<< 8)
 let write16 (a:byte[]) b c =
@@ -17,7 +17,9 @@ let fetch() =
     pc <- pc + 2
     ret
 
-while pc < tsize do
+let mutable running = true
+
+while running && pc < tsize do
     match fetch() with
     | 0o010011 ->
         write16 mem r1 r0
@@ -51,7 +53,8 @@ while pc < tsize do
         pc <- pc + 6
     // sys 1 ; exit
     | 0o104401 ->
-        exit r0
+        // exit r0
+        running <- false
     // sys 4 ; write
     | 0o104404 ->
         let arg1 = fetch()
@@ -79,4 +82,4 @@ while pc < tsize do
         pc <- pc + 6
     | w ->
         printfn "%04x: %04x ???" pc w
-        exit 1
+        running <- false
