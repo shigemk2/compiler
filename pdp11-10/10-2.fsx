@@ -68,11 +68,13 @@ let main file =
         | 0o110061 ->
             mem.[r1 + fetch()] <- byte r0
         | 0o012767 ->
-            write16 mem (pc + 6 + read16 mem (pc + 4)) (read16 mem (pc + 2))
-            pc <- pc + 6
+            let w1 = fetch()
+            let w2 = fetch()
+            write16 mem (pc + w2) w1
         | 0o112767 ->
-            mem.[r1 + pc + 6 + read16 mem (pc + 4)] <- mem.[pc + 2]
-            pc <- pc + 6
+            let w1 = fetch()
+            let w2 = fetch()
+            mem.[r1 + w2] <- byte w1
         | 0o162767 ->
             let addr = pc + 6 + read16 mem (pc + 4)
             write16 mem addr ((read16 mem addr) - (read16 mem (pc + 2)))
