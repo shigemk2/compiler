@@ -18,7 +18,7 @@ let fetch() =
     ret
 
 while pc < tsize do
-    match read16 mem pc with
+    match fetch() with
     | 0o010011 ->
         write16 mem r1 r0
         pc <- pc + 2
@@ -30,19 +30,16 @@ while pc < tsize do
         pc <- pc + 4
     // mov
     | 0o012700 ->
-        r0 <- read16 mem (pc + 2)
-        pc <- pc + 4
+        r0 <- fetch()
     // mov
     | 0o012701 ->
-        r1 <- read16 mem (pc + 2)
-        pc <- pc + 4
+        r1 <- fetch()
     | 0o012702 ->
         r2 <- read16 mem (pc + 2)
         pc <- pc + 4
     // mov
     | 0o012711 ->
-        write16 mem r1 (read16 mem (pc + 2))
-        pc <- pc + 4
+        write16 mem r1 (fetch())
     | 0o012761 ->
         write16 mem (r1 + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
@@ -57,11 +54,10 @@ while pc < tsize do
         exit r0
     // sys 4 ; write
     | 0o104404 ->
-        let arg1 = read16 mem (pc + 2)
-        let arg2 = read16 mem (pc + 4)
+        let arg1 = fetch()
+        let arg2 = fetch()
         let bytes = mem.[arg1 .. arg1 + arg2 - 1]
         printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
-        pc <- pc + 6
     | 0o003000 ->
         r0 <- ((r0 &&& 0xff) <<< 8) ||| ((r0 &&& 0xff00) >>> 8)
         pc <- pc + 2
