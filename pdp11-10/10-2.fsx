@@ -11,7 +11,7 @@ let dsize = read16 aout 4
 let mem = aout.[16 .. 16 + tsize + dsize - 1]
 
 let mutable pc = 0
-let r = [| 0; 0; 0; 0; 0; 0; 0; |];;
+let r = [| 0; 0; 0; |];;
 
 let fetch() =
     let ret = read16 mem pc
@@ -39,11 +39,12 @@ while pc < tsize do
     | w when (w >>> 3 = 0o01276) ->
         write16 mem (r.[(w &&& 7)] + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
+    // movb
     | w when (w >>> 3 = 0o011271) ->
         mem.[r.[(w &&& 7)]] <- mem.[pc + 2]
         pc <- pc + 4
-    | 0o112761 ->
-        mem.[r.[1] + read16 mem (pc + 4)] <- mem.[pc + 2]
+    | w when (w >>> 3 = 0o011276) ->
+        mem.[r.[(w &&& 7)] + read16 mem (pc + 4)] <- mem.[pc + 2]
         pc <- pc + 6
     // sys 1 ; exit
     | 0o104401 ->
