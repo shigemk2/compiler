@@ -61,15 +61,12 @@ let main file =
             let arg2 = fetch()
             let bytes = mem.[arg1 .. arg1 + arg2 - 1]
             printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
-        | 0o003000 ->
+        | 0o000300 ->
             r0 <- ((r0 &&& 0xff) <<< 8) ||| ((r0 &&& 0xff00) >>> 8)
-            pc <- pc + 2
         | 0o110011 ->
             mem.[r1] <- byte r0
-            pc <- pc + 2
         | 0o110061 ->
-            mem.[r1 + read16 mem (pc + 2)] <- byte r0
-            pc <- pc + 4
+            mem.[r1 + fetch()] <- byte r0
         | 0o012767 ->
             write16 mem (pc + 6 + read16 mem (pc + 4)) (read16 mem (pc + 2))
             pc <- pc + 6
