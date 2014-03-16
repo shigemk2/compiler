@@ -39,8 +39,8 @@ while pc < tsize do
     | w when (w >>> 3 = 0o01276) ->
         write16 mem (r.[(w &&& 7)] + read16 mem (pc + 4)) (read16 mem (pc + 2))
         pc <- pc + 6
-    | 0o112711 ->
-        mem.[r.[1]] <- mem.[pc + 2]
+    | w when (w >>> 3 = 0o011271) ->
+        mem.[r.[(w &&& 7)]] <- mem.[pc + 2]
         pc <- pc + 4
     | 0o112761 ->
         mem.[r.[1] + read16 mem (pc + 4)] <- mem.[pc + 2]
