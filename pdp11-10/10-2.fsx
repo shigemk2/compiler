@@ -35,14 +35,14 @@ while pc < tsize do
     | 0o012701 ->
         r1 <- fetch()
     | 0o012702 ->
-        r2 <- read16 mem (pc + 2)
-        pc <- pc + 4
+        r2 <- fetch()
     // mov
     | 0o012711 ->
         write16 mem r1 (fetch())
     | 0o012761 ->
-        write16 mem (r1 + read16 mem (pc + 4)) (read16 mem (pc + 2))
-        pc <- pc + 6
+        let w1 = fetch()
+        let w2 = fetch()
+        write16 mem (r1 + w2) w1
     | 0o112711 ->
         mem.[r1] <- mem.[pc + 2]
         pc <- pc + 4
