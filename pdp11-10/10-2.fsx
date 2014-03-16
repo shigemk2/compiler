@@ -1,6 +1,6 @@
 module hoge
-let mutable pc = 0
-let r = [| 0; 0; 0; |]
+// プログラムカウンター=r7
+let r = [| 0; 0; 0; 0; 0; 0; 0; 0 |]
 
 let main file =
     let aout = System.IO.File.ReadAllBytes file
@@ -14,32 +14,34 @@ let main file =
     let dsize = read16 aout 4
     let mem = aout.[16 .. 16 + tsize + dsize - 1]
 
-
     let fetch() =
-        let ret = read16 mem pc
-        pc <- pc + 2
+        let ret = read16 mem r.[7]
+        r.[7] <- r.[7] + 2
         ret
 
     let mutable running = true
 
-    while running && pc < tsize do
+    // operand書き込み t type r register
+    let writeopr t rn v =
+        match t with
+        | 0 -> r.[rn] <- v
+        // | 1 -> sprintf "(r%d)" r
+        // | 2 -> sprintf "(r%d)+" r
+        // | 6 -> sprintf "%x(r%d)" (fetch()) r
+        | _ -> printfn "??"
+
+    while running && r.[7] < tsize do
         match fetch() with
         | 0o010011 ->
             write16 mem r.[1] r.[0]
         | 0o010261 ->
             write16 mem (r.[1] + fetch()) r.[2]
         | 0o012661 ->
-            r.[0] <- read16 mem (pc + 2)
-            pc <- pc + 4
-        // mov
-        | 0o012700 ->
-            r.[0] <- fetch()
-        // mov
-        | 0o012701 ->
-            r.[1] <- fetch()
-        | 0o012702 ->
-            r.[2] <- fetch()
-        // mov
+            r.[0] <- read16 mem (r.[7] + 2)
+            r.[7] <- r.[7] + 4
+        | w when (w >>> 3 = 0o01270) ->
+            // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
+            writeopr 0 (w &&& 7) (fetch())
         | 0o012711 ->
             write16 mem r.[1] (fetch())
         | 0o012761 ->
@@ -71,7 +73,7 @@ let main file =
         | 0o012767 ->
             let w1 = fetch()
             let w2 = fetch()
-            write16 mem (pc + w2) w1
+            write16 mem (r.[7] + w2) w1
         | 0o112767 ->
             let w1 = fetch()
             let w2 = fetch()
@@ -79,8 +81,8 @@ let main file =
         | 0o162767 ->
             let w1 = fetch()
             let w2 = fetch()
-            let addr = pc + w2
+            let addr = r.[7] + w2
             write16 mem addr ((read16 mem addr) - (w1))
         | w ->
-            printfn "%04x: %04x ???" pc w
+            printfn "%04x: %04x ???" r.[7] w
             running <- false
