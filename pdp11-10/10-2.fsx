@@ -22,12 +22,18 @@ let main file =
     let mutable running = true
 
     // dd書き込み t type rn register v destination
-    let writedd t rn v =
+    let writedd w v =
+        let t = ((w >>> 3) &&& 7)
+        let rn = w &&& 7
         match t with
-        | 0 -> r.[rn] <- v
-        // | 1 -> sprintf "(r%d)" r
+        | 0 ->
+            r.[rn] <- v
+        | 1 ->
+            write16 mem r.[rn] v
         // | 2 -> sprintf "(r%d)+" r
-        // | 6 -> sprintf "%x(r%d)" (fetch()) r
+        | 6 ->
+            let w1 = fetch()
+            write16 mem (r.[rn] + w1) v
         | _ -> printfn "??"
 
     while running && r.[7] < tsize do
@@ -39,15 +45,9 @@ let main file =
         | 0o012661 ->
             r.[0] <- read16 mem (r.[7] + 2)
             r.[7] <- r.[7] + 4
-        | w when (w >>> 3 = 0o01270) ->
+        | w when (w >>> 6 = 0o0127) ->
             // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
-            writedd 0 (w &&& 7) (fetch())
-        | w when (w >>> 3 = 0o01271) ->
-            write16 mem r.[w &&& 7] (fetch())
-        | w when (w >>> 3 = 0o01276) ->
-            let w1 = fetch()
-            let w2 = fetch()
-            write16 mem (r.[w &&& 7] + w2) w1
+            writedd w (fetch())
         | 0o112711 ->
             mem.[r.[1]] <- byte (fetch())
         | 0o112761 ->
