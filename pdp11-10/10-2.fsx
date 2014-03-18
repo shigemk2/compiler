@@ -42,12 +42,12 @@ let main file =
         | w when (w >>> 3 = 0o01270) ->
             // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
             writedd 0 (w &&& 7) (fetch())
-        | 0o012711 ->
-            write16 mem r.[1] (fetch())
-        | 0o012761 ->
+        | w when (w >>> 3 = 0o01271) ->
+            write16 mem r.[w &&& 7] (fetch())
+        | w when (w >>> 3 = 0o01276) ->
             let w1 = fetch()
             let w2 = fetch()
-            write16 mem (r.[1] + w2) w1
+            write16 mem (r.[w &&& 7] + w2) w1
         | 0o112711 ->
             mem.[r.[1]] <- byte (fetch())
         | 0o112761 ->
