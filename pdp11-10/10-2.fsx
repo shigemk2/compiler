@@ -69,13 +69,10 @@ let main file =
             write16 mem (r.[1] + fetch()) r.[2]
         | 0o012661 ->
             r.[0] <- read16 mem (fetch())
-        | w when (w >>> 6 = 0o0127) ->
-            // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
-            mov27 w (fetch())
-        | w when (w >>> 6 = 0o1127) ->
-            movb27 w (fetch())
-        | w when (w >>> 6 = 0o1100) ->
-            movb00 w
+        // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
+        | w when (w >>> 6 = 0o0127) -> mov27 w (fetch())
+        | w when (w >>> 6 = 0o1127) -> movb27 w (fetch())
+        | w when (w >>> 6 = 0o1100) -> movb00 w
         // sys 1 ; exit
         | 0o104401 ->
             // exit r.[0]
