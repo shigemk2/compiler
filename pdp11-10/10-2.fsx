@@ -28,14 +28,22 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        if (t1 = 0 && t2 = 1) then
-             write16 mem r.[rn2] r.[rn1]
-        elif (t1 = 0 && t2 = 2) then
-             let v   = fetch()
-             write16 mem (r.[rn2] + v) r.[rn1]
-        elif (t1 = 2 && t2 = 6) then
-             let v   = fetch()
-             r.[0] <- read16 mem v
+        match t1 with
+        | 0 ->
+            match t2 with
+            | 1 ->
+                write16 mem r.[rn2] r.[rn1]
+            | 2 ->
+                let v   = fetch()
+                write16 mem (r.[rn2] + v) r.[rn1]
+            | _ -> printfn "??"
+        | 2 ->
+            match t2 with
+            | 6 ->
+                let v   = fetch()
+                r.[0] <- read16 mem v
+            | _ -> printfn "??"
+        | _ -> printfn "??"
 
     // dd書き込み w order v fetch
     let mov27 w v =
