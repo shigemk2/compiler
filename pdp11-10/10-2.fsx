@@ -40,14 +40,20 @@ let main file =
     let movb27 w v =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
-        match t with
-        | 1 ->
-            mem.[r.[rn]] <- byte (v)
-        // | 2 -> sprintf "(r%d)+" r
-        | 6 ->
-            let w1 = fetch()
-            mem.[r.[rn] + w1] <- byte v
-        | _ -> printfn "??"
+        if rn = 7 then
+            match t with
+            | 6 ->
+                let w1 = fetch()
+                mem.[r.[1] + w1] <- byte v
+            | _ -> printfn "??"
+        else
+            match t with
+            | 1 ->
+                mem.[r.[rn]] <- byte (v)
+            | 6 ->
+                let w1 = fetch()
+                mem.[r.[rn] + w1] <- byte v
+            | _ -> printfn "??"
 
     // dd書き込み w order
     let movb00 w =
@@ -89,10 +95,6 @@ let main file =
             let w1 = fetch()
             let w2 = fetch()
             write16 mem (r.[7] + w2) w1
-        | 0o112767 ->
-            let w1 = fetch()
-            let w2 = fetch()
-            mem.[r.[1] + w2] <- byte w1
         | 0o162767 ->
             let w1 = fetch()
             let w2 = fetch()
