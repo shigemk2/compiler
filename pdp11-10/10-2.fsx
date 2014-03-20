@@ -22,6 +22,22 @@ let main file =
     let mutable running = true
 
     // dd書き込み w order v fetch
+    let mov w =
+        let t1  = ((w >>> 9) &&& 7)
+        let rn1 = ((w >>> 6) &&& 7)
+        let t2  = ((w >>> 3) &&& 7)
+        let rn2 = w &&& 7
+
+        if (t1 = 0 && t2 = 1) then
+             write16 mem r.[rn2] r.[rn1]
+        elif (t1 = 0 && t2 = 2) then
+             let v   = fetch()
+             write16 mem (r.[rn2] + v) r.[rn1]
+        elif (t1 = 2 && t2 = 6) then
+             let v   = fetch()
+             r.[0] <- read16 mem v
+
+    // dd書き込み w order v fetch
     let mov27 w v =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
@@ -69,16 +85,11 @@ let main file =
 
     while running && r.[7] < tsize do
         match fetch() with
-        | 0o010011 ->
-            write16 mem r.[1] r.[0]
-        | 0o010261 ->
-            write16 mem (r.[1] + fetch()) r.[2]
-        | 0o012661 ->
-            r.[0] <- read16 mem (fetch())
         // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
         | w when (w >>> 6 = 0o0127) -> mov27 w (fetch())
         | w when (w >>> 6 = 0o1127) -> movb27 w (fetch())
         | w when (w >>> 6 = 0o1100) -> movb00 w
+        | w when (w >>> 12 = 0o01) -> mov w
         // sys 1 ; exit
         | 0o104401 ->
             // exit r.[0]
