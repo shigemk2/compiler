@@ -36,6 +36,19 @@ let main file =
             write16 mem (r.[rn] + w1) v
         | _ -> printfn "??"
 
+    // dd書き込み t type rn register v destination
+    let movb27 w v =
+        let t = ((w >>> 3) &&& 7)
+        let rn = w &&& 7
+        match t with
+        | 1 ->
+            mem.[r.[rn]] <- byte (v)
+        // | 2 -> sprintf "(r%d)+" r
+        | 6 ->
+            let w1 = fetch()
+            mem.[r.[rn] + w1] <- byte v
+        | _ -> printfn "??"
+
     while running && r.[7] < tsize do
         match fetch() with
         | 0o010011 ->
@@ -47,12 +60,8 @@ let main file =
         | w when (w >>> 6 = 0o0127) ->
             // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
             mov27 w (fetch())
-        | 0o112711 ->
-            mem.[r.[1]] <- byte (fetch())
-        | 0o112761 ->
-            let w1 = fetch()
-            let w2 = fetch()
-            mem.[r.[1] + w2] <- byte w1
+        | w when (w >>> 6 = 0o1127) ->
+            movb27 w (fetch())
         // sys 1 ; exit
         | 0o104401 ->
             // exit r.[0]
