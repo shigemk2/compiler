@@ -48,44 +48,51 @@ let main file =
             | _ -> printfn "??"
         | _ -> printfn "??"
 
-    // dd書き込み w order v fetch
-    let mov27 w v =
+    // dd書き込み w order
+    let mov27 w =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
         if rn = 7 then
             match t with
             | 6 ->
                 let w1 = fetch()
-                write16 mem (r.[7] + w1) v
+                let w2 = fetch()
+                write16 mem (r.[7] + w2) w1
             | _ -> printfn "??"
         else
             match t with
             | 0 ->
-                r.[rn] <- v
+                let w1 = fetch()
+                r.[rn] <- w1
             | 1 ->
-                write16 mem r.[rn] v
+                let w1 = fetch()
+                write16 mem r.[rn] w1
             | 6 ->
                 let w1 = fetch()
-                write16 mem (r.[rn] + w1) v
+                let w2 = fetch()
+                write16 mem (r.[rn] + w2) w1
             | _ -> printfn "??"
 
-    // dd書き込み w order v fetch
-    let movb27 w v =
+    // dd書き込み w order
+    let movb27 w =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
         if rn = 7 then
             match t with
             | 6 ->
                 let w1 = fetch()
-                mem.[r.[1] + w1] <- byte v
+                let w2 = fetch()
+                mem.[r.[1] + w2] <- byte w1
             | _ -> printfn "??"
         else
             match t with
             | 1 ->
-                mem.[r.[rn]] <- byte (v)
+                let w1 = fetch()
+                mem.[r.[rn]] <- byte w1
             | 6 ->
                 let w1 = fetch()
-                mem.[r.[rn] + w1] <- byte v
+                let w2 = fetch()
+                mem.[r.[rn] + w2] <- byte w1
             | _ -> printfn "??"
 
     // dd書き込み w order
@@ -126,8 +133,8 @@ let main file =
     while running && r.[7] < tsize do
         match fetch() with
         // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
-        | w when (w >>> 6 = 0o0127) -> mov27 w (fetch())
-        | w when (w >>> 6 = 0o1127) -> movb27 w (fetch())
+        | w when (w >>> 6 = 0o0127) -> mov27 w
+        | w when (w >>> 6 = 0o1127) -> movb27 w
         | w when (w >>> 6 = 0o1100) -> movb00 w
         | w when (w >>> 6 = 0o1627) -> sub27 w
         | w when (w >>> 12 = 0o01) -> mov w
