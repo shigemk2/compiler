@@ -22,7 +22,7 @@ let main file =
     let mutable running = true
 
     // dd書き込み t type rn register v destination
-    let movdd w v =
+    let mov27 w v =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
         match t with
@@ -43,11 +43,10 @@ let main file =
         | 0o010261 ->
             write16 mem (r.[1] + fetch()) r.[2]
         | 0o012661 ->
-            r.[0] <- read16 mem (r.[7] + 2)
-            r.[7] <- r.[7] + 4
+            r.[0] <- read16 mem (fetch())
         | w when (w >>> 6 = 0o0127) ->
             // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
-            movdd w (fetch())
+            mov27 w (fetch())
         | 0o112711 ->
             mem.[r.[1]] <- byte (fetch())
         | 0o112761 ->
