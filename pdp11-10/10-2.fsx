@@ -89,13 +89,38 @@ let main file =
             mem.[r.[1] + fetch()] <- byte r.[0]
         | _ -> printfn "??"
 
+    let swab w =
+        let t = ((w >>> 3) &&& 7)
+        let rn = w &&& 7
+        match t with
+        | 0 ->
+             r.[rn] <- ((r.[rn] &&& 0xff) <<< 8) ||| ((r.[rn] &&& 0xff00) >>> 8)
+        | _ -> printfn "??"
+
+    let sub27 w =
+        let t = ((w >>> 3) &&& 7)
+        let rn = w &&& 7
+        if rn = 7 then
+            match t with
+            | 6 ->
+                 let w1 = fetch()
+                 let w2 = fetch()
+                 let addr = r.[7] + w2
+                 write16 mem addr ((read16 mem addr) - (w1))
+            | _ -> printfn "??"
+        else
+            match t with
+            | _ -> printfn "??"
+
     while running && r.[7] < tsize do
         match fetch() with
         // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
         | w when (w >>> 6 = 0o0127) -> mov27 w (fetch())
         | w when (w >>> 6 = 0o1127) -> movb27 w (fetch())
         | w when (w >>> 6 = 0o1100) -> movb00 w
+        | w when (w >>> 6 = 0o1627) -> sub27 w
         | w when (w >>> 12 = 0o01) -> mov w
+        | w when (w >>> 12 = 0o00) -> swab w
         // sys 1 ; exit
         | 0o104401 ->
             // exit r.[0]
@@ -106,13 +131,6 @@ let main file =
             let arg2 = fetch()
             let bytes = mem.[arg1 .. arg1 + arg2 - 1]
             printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
-        | 0o000300 ->
-            r.[0] <- ((r.[0] &&& 0xff) <<< 8) ||| ((r.[0] &&& 0xff00) >>> 8)
-        | 0o162767 ->
-            let w1 = fetch()
-            let w2 = fetch()
-            let addr = r.[7] + w2
-            write16 mem addr ((read16 mem addr) - (w1))
         | w ->
             printfn "%04x: %04x ???" r.[7] w
             running <- false
