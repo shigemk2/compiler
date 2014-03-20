@@ -21,33 +21,6 @@ let main file =
 
     let mutable running = true
 
-    // dd書き込み w order v fetch
-    let mov w =
-        let t1  = ((w >>> 9) &&& 7)
-        let rn1 = ((w >>> 6) &&& 7)
-        let t2  = ((w >>> 3) &&& 7)
-        let rn2 = w &&& 7
-
-        match t1 with
-        | 0 ->
-            match t2 with
-            | 1 ->
-                write16 mem r.[rn2] r.[rn1]
-            | 2 ->
-                let v   = fetch()
-                write16 mem (r.[rn2] + v) r.[rn1]
-            | 6 ->
-                let v   = fetch()
-                write16 mem (r.[rn2] + v) r.[rn1]
-            | _ -> printfn "??"
-        | 2 ->
-            match t2 with
-            | 6 ->
-                let v   = fetch()
-                r.[rn2] <- read16 mem v
-            | _ -> printfn "??"
-        | _ -> printfn "??"
-
     // dd書き込み w order
     let mov27 w =
         let t = ((w >>> 3) &&& 7)
@@ -72,6 +45,36 @@ let main file =
                 let w2 = fetch()
                 write16 mem (r.[rn] + w2) w1
             | _ -> printfn "??"
+
+    // dd書き込み w order v fetch
+    let mov w =
+        let t1  = ((w >>> 9) &&& 7)
+        let rn1 = ((w >>> 6) &&& 7)
+        let t2  = ((w >>> 3) &&& 7)
+        let rn2 = w &&& 7
+
+        match t1 with
+        | 0 ->
+            match t2 with
+            | 1 ->
+                write16 mem r.[rn2] r.[rn1]
+            | 2 ->
+                let v   = fetch()
+                write16 mem (r.[rn2] + v) r.[rn1]
+            | 6 ->
+                let v   = fetch()
+                write16 mem (r.[rn2] + v) r.[rn1]
+            | _ -> printfn "??"
+        | 2 ->
+            if rn1 = 7 then
+              mov27 w
+            else
+                match t2 with
+                | 6 ->
+                    let v   = fetch()
+                    r.[rn2] <- read16 mem v
+                | _ -> printfn "??"
+        | _ -> printfn "??"
 
     // dd書き込み w order
     let movb27 w =
@@ -133,11 +136,10 @@ let main file =
     while running && r.[7] < tsize do
         match fetch() with
         // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
-        | w when (w >>> 6 = 0o0127) -> mov27 w
+        | w when (w >>> 12 = 0o01) -> mov w
         | w when (w >>> 6 = 0o1127) -> movb27 w
         | w when (w >>> 6 = 0o1100) -> movb00 w
         | w when (w >>> 6 = 0o1627) -> sub27 w
-        | w when (w >>> 12 = 0o01) -> mov w
         | w when (w >>> 12 = 0o00) -> swab w
         // sys 1 ; exit
         | 0o104401 ->
