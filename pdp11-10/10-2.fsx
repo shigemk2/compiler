@@ -41,16 +41,22 @@ let main file =
     let mov27 w v =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
-        match t with
-        | 0 ->
-            r.[rn] <- v
-        | 1 ->
-            write16 mem r.[rn] v
-        // | 2 -> sprintf "(r%d)+" r
-        | 6 ->
-            let w1 = fetch()
-            write16 mem (r.[rn] + w1) v
-        | _ -> printfn "??"
+        if rn = 7 then
+            match t with
+            | 6 ->
+                let w1 = fetch()
+                write16 mem (r.[7] + w1) v
+            | _ -> printfn "??"
+        else
+            match t with
+            | 0 ->
+                r.[rn] <- v
+            | 1 ->
+                write16 mem r.[rn] v
+            | 6 ->
+                let w1 = fetch()
+                write16 mem (r.[rn] + w1) v
+            | _ -> printfn "??"
 
     // dd書き込み w order v fetch
     let movb27 w v =
@@ -102,10 +108,6 @@ let main file =
             printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
         | 0o000300 ->
             r.[0] <- ((r.[0] &&& 0xff) <<< 8) ||| ((r.[0] &&& 0xff00) >>> 8)
-        | 0o012767 ->
-            let w1 = fetch()
-            let w2 = fetch()
-            write16 mem (r.[7] + w2) w1
         | 0o162767 ->
             let w1 = fetch()
             let w2 = fetch()
