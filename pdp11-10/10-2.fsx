@@ -110,6 +110,28 @@ let main file =
             mem.[r.[1] + fetch()] <- byte r.[0]
         | _ -> printfn "??"
 
+    // dd書き込み w order v fetch
+    let movb w =
+        let t1  = ((w >>> 9) &&& 7)
+        let rn1 = ((w >>> 6) &&& 7)
+        let t2  = ((w >>> 3) &&& 7)
+        let rn2 = w &&& 7
+
+        match t1 with
+        | 0 ->
+            match t2 with
+            | 1 ->
+                mem.[r.[rn2]] <- byte r.[rn1]
+            | 6 ->
+                mem.[r.[rn2] + fetch()] <- byte r.[rn1]
+            | _ -> printfn "??"
+        | 2 ->
+            if rn1 = 7 then
+                movb27 w
+            else
+                printfn "??"
+        | _ -> printfn "??"
+
     let swab w =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
@@ -137,8 +159,7 @@ let main file =
         match fetch() with
         // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
         | w when (w >>> 12 = 0o01) -> mov w
-        | w when (w >>> 6 = 0o1127) -> movb27 w
-        | w when (w >>> 6 = 0o1100) -> movb00 w
+        | w when (w >>> 12 = 0o11) -> movb w
         | w when (w >>> 6 = 0o1627) -> sub27 w
         | w when (w >>> 12 = 0o00) -> swab w
         // sys 1 ; exit
