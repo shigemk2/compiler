@@ -21,7 +21,7 @@ let main file =
 
     let mutable running = true
 
-    // dd書き込み t type rn register v destination
+    // dd書き込み w order v fetch
     let mov27 w v =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
@@ -36,7 +36,7 @@ let main file =
             write16 mem (r.[rn] + w1) v
         | _ -> printfn "??"
 
-    // dd書き込み t type rn register v destination
+    // dd書き込み w order v fetch
     let movb27 w v =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
@@ -47,6 +47,18 @@ let main file =
         | 6 ->
             let w1 = fetch()
             mem.[r.[rn] + w1] <- byte v
+        | _ -> printfn "??"
+
+    // dd書き込み w order
+    let movb00 w =
+        let t = ((w >>> 3) &&& 7)
+        let rn = w &&& 7
+        match t with
+        | 1 ->
+            mem.[r.[1]] <- byte r.[0]
+        // | 2 -> sprintf "(r%d)+" r
+        | 6 ->
+            mem.[r.[1] + fetch()] <- byte r.[0]
         | _ -> printfn "??"
 
     while running && r.[7] < tsize do
@@ -62,6 +74,8 @@ let main file =
             mov27 w (fetch())
         | w when (w >>> 6 = 0o1127) ->
             movb27 w (fetch())
+        | w when (w >>> 6 = 0o1100) ->
+            movb00 w
         // sys 1 ; exit
         | 0o104401 ->
             // exit r.[0]
@@ -74,10 +88,6 @@ let main file =
             printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
         | 0o000300 ->
             r.[0] <- ((r.[0] &&& 0xff) <<< 8) ||| ((r.[0] &&& 0xff00) >>> 8)
-        | 0o110011 ->
-            mem.[r.[1]] <- byte r.[0]
-        | 0o110061 ->
-            mem.[r.[1] + fetch()] <- byte r.[0]
         | 0o012767 ->
             let w1 = fetch()
             let w2 = fetch()
