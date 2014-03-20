@@ -36,12 +36,15 @@ let main file =
             | 2 ->
                 let v   = fetch()
                 write16 mem (r.[rn2] + v) r.[rn1]
+            | 6 ->
+                let v   = fetch()
+                write16 mem (r.[rn2] + v) r.[rn1]
             | _ -> printfn "??"
         | 2 ->
             match t2 with
             | 6 ->
                 let v   = fetch()
-                r.[0] <- read16 mem v
+                r.[rn2] <- read16 mem v
             | _ -> printfn "??"
         | _ -> printfn "??"
 
