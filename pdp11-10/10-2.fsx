@@ -26,26 +26,22 @@ let main file =
     let mov27 w =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
-        if rn = 7 then
-            match t with
-            | 6 ->
-                let w1 = fetch()
-                let w2 = fetch()
-                write16 mem (r.[7] + w2) w1
-            | _ -> printfn "??"
-        else
-            match t with
-            | 0 ->
-                let w1 = fetch()
-                r.[rn] <- w1
-            | 1 ->
-                let w1 = fetch()
-                write16 mem r.[rn] w1
-            | 6 ->
-                let w1 = fetch()
-                let w2 = fetch()
-                write16 mem (r.[rn] + w2) w1
-            | _ -> printfn "??"
+        match t, rn with
+        | 6, 7 ->
+            let w1 = fetch()
+            let w2 = fetch()
+            write16 mem (r.[rn] + w2) w1
+        | 0, _ ->
+            let w1 = fetch()
+            r.[rn] <- w1
+        | 1, _ ->
+            let w1 = fetch()
+            write16 mem r.[rn] w1
+        | 6, _ ->
+            let w1 = fetch()
+            let w2 = fetch()
+            write16 mem (r.[rn] + w2) w1
+        | _, _ -> printfn "??"
 
     // dd書き込み w order v fetch
     let mov w =
