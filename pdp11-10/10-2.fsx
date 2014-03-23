@@ -77,23 +77,19 @@ let main file =
     let movb27 w =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
-        if rn = 7 then
-            match t with
-            | 6 ->
-                let w1 = fetch()
-                let w2 = fetch()
-                mem.[r.[1] + w2] <- byte w1
-            | _ -> printfn "??"
-        else
-            match t with
-            | 1 ->
-                let w1 = fetch()
-                mem.[r.[rn]] <- byte w1
-            | 6 ->
-                let w1 = fetch()
-                let w2 = fetch()
-                mem.[r.[rn] + w2] <- byte w1
-            | _ -> printfn "??"
+        match rn, t with
+        | 7, 6 ->
+            let w1 = fetch()
+            let w2 = fetch()
+            mem.[r.[rn] + w2] <- byte w1
+        | _, 1 ->
+            let w1 = fetch()
+            mem.[r.[rn]] <- byte w1
+        | _, 6 ->
+            let w1 = fetch()
+            let w2 = fetch()
+            mem.[r.[rn] + w2] <- byte w1
+        | _, _ -> printfn "??"
 
     // dd書き込み w order v fetch
     let movb w =
