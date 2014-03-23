@@ -22,27 +22,6 @@ let main file =
 
     let mutable running = true
 
-    // dd書き込み w order
-    let mov27 w =
-        let t = ((w >>> 3) &&& 7)
-        let rn = w &&& 7
-        match t, rn with
-        | 6, 7 ->
-            let w1 = fetch()
-            let w2 = fetch()
-            write16 mem (r.[rn] + w2) w1
-        | 0, _ ->
-            let w1 = fetch()
-            r.[rn] <- w1
-        | 1, _ ->
-            let w1 = fetch()
-            write16 mem r.[rn] w1
-        | 6, _ ->
-            let w1 = fetch()
-            let w2 = fetch()
-            write16 mem (r.[rn] + w2) w1
-        | _, _ -> printfn "??"
-
     // dd書き込み w order v fetch
     let mov w =
         // t type
@@ -52,23 +31,23 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1, rn1, t2 with
-        | 0, _, 1 ->
+        match t1, rn1, t2, rn2 with
+        | 0, _, 1, _ ->
             write16 mem r.[rn2] r.[rn1]
-        | 0, _, 2 ->
+        | 0, _, 6, _ ->
             let v   = fetch()
             write16 mem (r.[rn2] + v) r.[rn1]
-        | 0, _, 6 ->
-            let v   = fetch()
-            write16 mem (r.[rn2] + v) r.[rn1]
-        | 0, _, _ ->
-            printfn "??"
-        | 2, 7, _ ->
-            mov27 w
-        | 2, _, 6 ->
-            let v   = fetch()
-            r.[rn2] <- read16 mem v
-        | _, _, _ ->
+        | 2, 7, 0, _ ->
+            let w1 = fetch()
+            r.[rn2] <- w1
+        | 2, 7, 1, _ ->
+            let w1 = fetch()
+            write16 mem r.[rn2] w1
+        | 2, 7, 6, _ ->
+            let w1 = fetch()
+            let w2 = fetch()
+            write16 mem (r.[rn2] + w2) w1
+        | _, _, _, _ ->
             printfn "??"
 
     // dd書き込み w order
