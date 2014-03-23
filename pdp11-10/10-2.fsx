@@ -90,19 +90,17 @@ let main file =
 
     // dd書き込み w order v fetch
     let sub w =
-        let t1  = ((w >>> 9) &&& 7)
-        let rn1 = ((w >>> 6) &&& 7)
-        let t2  = ((w >>> 3) &&& 7)
-        let rn2 = w &&& 7
+        let opr = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
 
-        match t1, rn1, t2, rn2 with
-        | 2, 7, 0, _ ->
-            r.[rn2] <- r.[rn2] - (readopr t1 rn1)
-        | 2, 7, 6, 7  ->
-            let w1 = fetch()
-            let w2 = fetch()
-            let addr = r.[7] + w2
-            write16 mem addr ((read16 mem addr) - (w1))
+        // type of destination
+        // register of destination
+        match ((w >>> 3) &&& 7), (w &&& 7) with
+        | 0, dr ->
+            r.[dr] <- r.[dr] - opr
+        | 6, 7  ->
+            let v   = fetch()
+            let addr = r.[7] + v
+            write16 mem addr ((read16 mem addr) - opr)
         | _ -> printfn "?? %o" r.[7]
 
     while !running && r.[7] < tsize do
