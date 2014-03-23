@@ -96,19 +96,13 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1 with
-        | 0 ->
-            match t2 with
-            | 1 ->
-                mem.[r.[rn2]] <- byte r.[rn1]
-            | 6 ->
-                mem.[r.[rn2] + fetch()] <- byte r.[rn1]
-            | _ -> printfn "??"
-        | 2 ->
-            if rn1 = 7 then
-                movb27 w
-            else
-                printfn "??"
+        match t1, rn1, t2 with
+        | 0, _, 1 ->
+            mem.[r.[rn2]] <- byte r.[rn1]
+        | 0, _, 6 ->
+            mem.[r.[rn2] + fetch()] <- byte r.[rn1]
+        | 2, 7, _ ->
+            movb27 w
         | _ -> printfn "??"
 
     let swab w =
