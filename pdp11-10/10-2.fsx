@@ -77,15 +77,15 @@ let main file =
     let movb27 w =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
-        match rn, t with
-        | 7, 6 ->
+        match t, rn with
+        | 6, 7 ->
             let w1 = fetch()
             let w2 = fetch()
             mem.[r.[rn] + w2] <- byte w1
-        | _, 1 ->
+        | 1, _ ->
             let w1 = fetch()
             mem.[r.[rn]] <- byte w1
-        | _, 6 ->
+        | 6, _ ->
             let w1 = fetch()
             let w2 = fetch()
             mem.[r.[rn] + w2] <- byte w1
