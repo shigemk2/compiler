@@ -25,51 +25,59 @@ let main file =
     // mutableと違い、mutableと同じ場所で定義された関数の中で参照することができる
     let running = ref true
 
-    let readopr t rn =
+    let readopr t rn savepc =
         match t, rn with
         | 0, _ ->
             r.[rn]
         | 1, _ ->
             read16 mem r.[rn]
         | 6, _ ->
+            let oldpc = r.[7]
             let v = fetch()
-            read16 mem (r.[rn] + v)
+            let addr = r.[rn] + v
+            if savepc then r.[7] <- oldpc
+            read16 mem addr
         | 2, 7 ->
             fetch()
         | _, _ ->
             0
 
+    let writeopr t rn value b =
+        if b then
+            match t, rn with
+            | 0, _ ->
+                r.[rn] <- int(byte value)
+            | 1, _ ->
+                mem.[r.[rn]] <- byte value
+            | 6, _ ->
+                let v   = fetch()
+                mem.[r.[rn] + v] <- byte value
+            | _ ->
+                printfn "?? %x" r.[7]
+                running := false
+        else
+            match t, rn with
+            | 0, _ ->
+                r.[rn] <- value
+            | 1, _ ->
+                write16 mem r.[rn] value
+            | 6, _ ->
+                let v   = fetch()
+                write16 mem (r.[rn] + v) value
+            | _ ->
+                printfn "?? %x" r.[7]
+                // running <- false
+                running := false
+
     // dd書き込み w order v fetch
     let mov w =
-        // t type
-        // rn register number
-        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
-
-        match ((w >>> 3) &&& 7), (w &&& 7) with
-        | 0, dr ->
-            r.[dr] <- src
-        | 1, dr ->
-            write16 mem r.[dr] src
-        | 6, dr ->
-            let v   = fetch()
-            write16 mem (r.[dr] + v) src
-        | _ ->
-            printfn "?? %x" r.[7]
-            // running <- false
-            running := false
+        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
+        writeopr ((w >>> 3) &&& 7) (w &&& 7) src false
 
     // dd書き込み w order v fetch
     let movb w =
-        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
-
-        match ((w >>> 3) &&& 7), (w &&& 7) with
-        | 1, dr ->
-            mem.[r.[dr]] <- byte src
-        | 6, dr ->
-            let v   = fetch()
-            mem.[r.[dr] + v] <- byte src
-        | _ ->
-            printfn "??"
+        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
+        writeopr ((w >>> 3) &&& 7) (w &&& 7) src true
 
     let swab w =
         let t = ((w >>> 3) &&& 7)
@@ -81,18 +89,9 @@ let main file =
 
     // dd書き込み w order v fetch
     let sub w =
-        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
-
-        // type of destination
-        // register of destination
-        match ((w >>> 3) &&& 7), (w &&& 7) with
-        | 0, dr ->
-            r.[dr] <- r.[dr] - src
-        | 6, 7  ->
-            let v   = fetch()
-            let addr = r.[7] + v
-            write16 mem addr ((read16 mem addr) - src)
-        | _ -> printfn "?? %o" r.[7]
+        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
+        let dst = readopr ((w >>> 3) &&& 7)  (w        &&& 7) true
+        writeopr ((w >>> 3) &&& 7) (w &&& 7) (dst - src) false
 
     while !running && r.[7] < tsize do
         match fetch() with
