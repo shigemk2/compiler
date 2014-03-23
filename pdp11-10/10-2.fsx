@@ -41,6 +41,8 @@ let main file =
             write16 mem r.[rn2] r.[rn1]
         | 1, _, 0, _ ->
             r.[rn2] <- read16 mem r.[rn1]
+        | 1, _, 1, _ ->
+            write16 mem r.[rn2] (read16 mem r.[rn1])
         | 0, _, 6, _ ->
             let v   = fetch()
             write16 mem (r.[rn2] + v) r.[rn1]
