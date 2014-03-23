@@ -80,18 +80,6 @@ let main file =
              r.[rn] <- ((r.[rn] &&& 0xff) <<< 8) ||| ((r.[rn] &&& 0xff00) >>> 8)
         | _ -> printfn "??"
 
-    let sub27 w =
-        let t = ((w >>> 3) &&& 7)
-        let rn = w &&& 7
-        match t, rn with
-        | 6, 7 ->
-            let w1 = fetch()
-            let w2 = fetch()
-            let addr = r.[7] + w2
-            write16 mem addr ((read16 mem addr) - (w1))
-        | _, _ ->
-            printfn "??"
-
     // dd書き込み w order v fetch
     let sub w =
         let t1  = ((w >>> 9) &&& 7)
@@ -99,10 +87,13 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1, rn1, t2 with
-        | 2, 7, _ ->
-            sub27 w
-        | _, _, _ -> printfn "??"
+        match t1, rn1, t2, rn2 with
+        | 2, 7, 6, _  ->
+            let w1 = fetch()
+            let w2 = fetch()
+            let addr = r.[7] + w2
+            write16 mem addr ((read16 mem addr) - (w1))
+        | _ -> printfn "??"
 
     while running && r.[7] < tsize do
         match fetch() with
