@@ -178,3 +178,19 @@ let main file =
         | w ->
             printfn "%04x: %04x ???" r.[7] w
             running <- false
+
+let test() =
+    printfn "hoge1"
+    main "../pdp11-3/write-1.out"
+    printfn "hoge2"
+    main "../pdp11-4/write-2.out"
+    printfn "hoge3"
+    main "../pdp11-5/write-3.out"
+    printfn "hoge4"
+    main "../pdp11-6/write-4.out"
+    printfn "hoge5"
+    main "../pdp11-7/write-5.out"
+    printfn "hoge6"
+    main "../pdp11-8/write-6.out"
+    printfn "hoge7"
+    main "../pdp11-9/write-7.out"
