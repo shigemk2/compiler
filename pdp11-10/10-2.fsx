@@ -70,18 +70,20 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1, rn1, t2, rn2 with
-        | 2, 7, 1, _ ->
-            let w1 = fetch()
-            mem.[r.[rn2]] <- byte w1
-        | 2, 7, 6, _ ->
-            let w1 = fetch()
-            let w2 = fetch()
-            mem.[r.[rn2] + w2] <- byte w1
-        | _, _, 1, _ ->
+        match t2, rn2 with
+        // | 2, 7, 1, _ ->
+        //     let w1 = fetch()
+        //     mem.[r.[rn2]] <- byte w1
+        // | 2, 7, 6, _ ->
+        //     let w1 = fetch()
+        //     let w2 = fetch()
+        //     mem.[r.[rn2] + w2] <- byte w1
+        | 1, _ ->
             mem.[r.[rn2]] <- byte (readopr t1 rn1)
-        | _, _, 6, _ ->
-            mem.[r.[rn2] + fetch()] <- byte (readopr t1 rn1)
+        | 6, _ ->
+            let opr = readopr t1 rn1
+            let v   = fetch()
+            mem.[r.[rn2] + v] <- byte opr
         | _ ->
             printfn "??"
 
