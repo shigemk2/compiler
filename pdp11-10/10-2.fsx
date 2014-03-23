@@ -35,8 +35,7 @@ let main file =
             let v = fetch()
             read16 mem (r.[rn] + v)
         | 2, 7 ->
-            let v = fetch()
-            v
+            fetch()
         | _, _ ->
             0
 
@@ -44,20 +43,16 @@ let main file =
     let mov w =
         // t type
         // rn register number
-        let t1  = ((w >>> 9) &&& 7)
-        let rn1 = ((w >>> 6) &&& 7)
-        let t2  = ((w >>> 3) &&& 7)
-        let rn2 = w &&& 7
+        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
 
-        match t2, rn2 with
-        | 0, _ ->
-            r.[rn2] <- (readopr t1 rn1)
-        | 1, _ ->
-            write16 mem r.[rn2] (readopr t1 rn1)
-        | 6, _ ->
-            let opr = readopr t1 rn1
+        match ((w >>> 3) &&& 7), (w &&& 7) with
+        | 0, dr ->
+            r.[dr] <- src
+        | 1, dr ->
+            write16 mem r.[dr] src
+        | 6, dr ->
             let v   = fetch()
-            write16 mem (r.[rn2] + v) opr
+            write16 mem (r.[dr] + v) src
         | _ ->
             printfn "?? %x" r.[7]
             // running <- false
@@ -65,18 +60,14 @@ let main file =
 
     // dd書き込み w order v fetch
     let movb w =
-        let t1  = ((w >>> 9) &&& 7)
-        let rn1 = ((w >>> 6) &&& 7)
-        let t2  = ((w >>> 3) &&& 7)
-        let rn2 = w &&& 7
+        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
 
-        match t2, rn2 with
-        | 1, _ ->
-            mem.[r.[rn2]] <- byte (readopr t1 rn1)
-        | 6, _ ->
-            let opr = readopr t1 rn1
+        match ((w >>> 3) &&& 7), (w &&& 7) with
+        | 1, dr ->
+            mem.[r.[dr]] <- byte src
+        | 6, dr ->
             let v   = fetch()
-            mem.[r.[rn2] + v] <- byte opr
+            mem.[r.[dr] + v] <- byte src
         | _ ->
             printfn "??"
 
@@ -90,17 +81,17 @@ let main file =
 
     // dd書き込み w order v fetch
     let sub w =
-        let opr = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
+        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7)
 
         // type of destination
         // register of destination
         match ((w >>> 3) &&& 7), (w &&& 7) with
         | 0, dr ->
-            r.[dr] <- r.[dr] - opr
+            r.[dr] <- r.[dr] - src
         | 6, 7  ->
             let v   = fetch()
             let addr = r.[7] + v
-            write16 mem addr ((read16 mem addr) - opr)
+            write16 mem addr ((read16 mem addr) - src)
         | _ -> printfn "?? %o" r.[7]
 
     while !running && r.[7] < tsize do
