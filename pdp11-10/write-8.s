@@ -4,6 +4,13 @@ sys write
 hello
 6
 
+swab hello
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
 mov $hello, r0
 mov $hello, r1
 mov 2(r1), (r0)

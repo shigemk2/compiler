@@ -4,7 +4,6 @@ sys write
 hello
 6
 
-
 / r1 = hello;
 / r0 = 0x4548;
 / *(uint8_t *)r1 = r0;

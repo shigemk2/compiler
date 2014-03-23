@@ -80,12 +80,9 @@ let main file =
         writeopr ((w >>> 3) &&& 7) (w &&& 7) src true
 
     let swab w =
-        let t = ((w >>> 3) &&& 7)
-        let rn = w &&& 7
-        match t with
-        | 0 ->
-             r.[rn] <- ((r.[rn] &&& 0xff) <<< 8) ||| ((r.[rn] &&& 0xff00) >>> 8)
-        | _ -> printfn "??"
+        let src = readopr ((w >>> 3) &&& 7) (w &&& 7) true
+        let src = ((src &&& 0xff) <<< 8) ||| ((src &&& 0xff00) >>> 8)
+        writeopr ((w >>> 3) &&& 7) (w &&& 7) src false
 
     // dd書き込み w order v fetch
     let sub w =
