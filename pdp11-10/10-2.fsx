@@ -71,13 +71,6 @@ let main file =
         let rn2 = w &&& 7
 
         match t2, rn2 with
-        // | 2, 7, 1, _ ->
-        //     let w1 = fetch()
-        //     mem.[r.[rn2]] <- byte w1
-        // | 2, 7, 6, _ ->
-        //     let w1 = fetch()
-        //     let w2 = fetch()
-        //     mem.[r.[rn2] + w2] <- byte w1
         | 1, _ ->
             mem.[r.[rn2]] <- byte (readopr t1 rn1)
         | 6, _ ->
@@ -104,8 +97,7 @@ let main file =
 
         match t1, rn1, t2, rn2 with
         | 2, 7, 0, _ ->
-            let w1 = fetch()
-            r.[rn2] <- r.[rn2] - w1
+            r.[rn2] <- r.[rn2] - (readopr t1 rn1)
         | 2, 7, 6, 7  ->
             let w1 = fetch()
             let w2 = fetch()
