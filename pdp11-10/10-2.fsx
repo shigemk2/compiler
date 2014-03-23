@@ -47,26 +47,8 @@ let main file =
             let w1 = fetch()
             let w2 = fetch()
             write16 mem (r.[rn2] + w2) w1
-        | _, _, _, _ ->
+        | _ ->
             printfn "??"
-
-    // dd書き込み w order
-    let movb27 w =
-        let t = ((w >>> 3) &&& 7)
-        let rn = w &&& 7
-        match t, rn with
-        | 6, 7 ->
-            let w1 = fetch()
-            let w2 = fetch()
-            mem.[r.[rn] + w2] <- byte w1
-        | 1, _ ->
-            let w1 = fetch()
-            mem.[r.[rn]] <- byte w1
-        | 6, _ ->
-            let w1 = fetch()
-            let w2 = fetch()
-            mem.[r.[rn] + w2] <- byte w1
-        | _, _ -> printfn "??"
 
     // dd書き込み w order v fetch
     let movb w =
@@ -80,8 +62,13 @@ let main file =
             mem.[r.[rn2]] <- byte r.[rn1]
         | 0, _, 6, _ ->
             mem.[r.[rn2] + fetch()] <- byte r.[rn1]
-        | 2, 7, _, _ ->
-            movb27 w
+        | 2, 7, 1, _ ->
+            let w1 = fetch()
+            mem.[r.[rn2]] <- byte w1
+        | 2, 7, 6, _ ->
+            let w1 = fetch()
+            let w2 = fetch()
+            mem.[r.[rn2] + w2] <- byte w1
         | _ ->
             printfn "??"
 
