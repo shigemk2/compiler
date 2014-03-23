@@ -42,7 +42,7 @@ let main file =
         | _, _ ->
             0
 
-    let writeopr t rn value b =
+    let writeoprbase t rn value b =
         if b then
             match t, rn with
             | 0, _ ->
@@ -69,26 +69,29 @@ let main file =
                 // running <- false
                 running := false
 
+    let writeopr w value b =
+      writeoprbase ((w >>> 3) &&& 7) (w &&& 7) value b
+
     // dd書き込み w order v fetch
     let mov w =
         let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
-        writeopr ((w >>> 3) &&& 7) (w &&& 7) src false
+        writeopr w src false
 
     // dd書き込み w order v fetch
     let movb w =
         let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
-        writeopr ((w >>> 3) &&& 7) (w &&& 7) src true
+        writeopr w src true
 
     let swab w =
         let src = readopr ((w >>> 3) &&& 7) (w &&& 7) true
         let src = ((src &&& 0xff) <<< 8) ||| ((src &&& 0xff00) >>> 8)
-        writeopr ((w >>> 3) &&& 7) (w &&& 7) src false
+        writeopr w src false
 
     // dd書き込み w order v fetch
     let sub w =
         let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
         let dst = readopr ((w >>> 3) &&& 7)  (w        &&& 7) true
-        writeopr ((w >>> 3) &&& 7) (w &&& 7) (dst - src) false
+        writeopr w (dst - src) false
 
     while !running && r.[7] < tsize do
         match fetch() with
