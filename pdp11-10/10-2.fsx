@@ -1,8 +1,9 @@
 module hoge
-// プログラムカウンター=r7
-let r = [| 0; 0; 0; 0; 0; 0; 0; 0 |]
 
 let main file =
+    // プログラムカウンター=r7
+    let r = [| 0; 0; 0; 0; 0; 0; 0; 0 |]
+
     let aout = System.IO.File.ReadAllBytes file
 
     let read16 (a:byte[]) b =
@@ -180,17 +181,19 @@ let main file =
             running <- false
 
 let test() =
-    printfn "hoge1"
+    printfn "-------------------"
     main "../pdp11-3/write-1.out"
-    printfn "hoge2"
+    printfn "-------------------"
     main "../pdp11-4/write-2.out"
-    printfn "hoge3"
+    printfn "-------------------"
     main "../pdp11-5/write-3.out"
-    printfn "hoge4"
+    printfn "-------------------"
     main "../pdp11-6/write-4.out"
-    printfn "hoge5"
+    printfn "-------------------"
     main "../pdp11-7/write-5.out"
-    printfn "hoge6"
+    printfn "-------------------"
     main "../pdp11-8/write-6.out"
-    printfn "hoge7"
+    printfn "-------------------"
     main "../pdp11-9/write-7.out"
+    printfn "-------------------"
+
