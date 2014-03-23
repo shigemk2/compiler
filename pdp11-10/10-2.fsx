@@ -25,6 +25,20 @@ let main file =
     // mutableと違い、mutableと同じ場所で定義された関数の中で参照することができる
     let running = ref true
 
+    let readopr t rn =
+        match t, rn with
+        | 0, _ ->
+            r.[rn]
+        | 1, _ ->
+            read16 mem r.[rn]
+        | 6, _ ->
+            let v = fetch()
+            read16 mem (r.[rn] + v)
+        | 2, 7 ->
+            fetch()
+        | _, _ ->
+            0
+
     // dd書き込み w order v fetch
     let mov w =
         // t type
@@ -34,22 +48,7 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        let readopr t rn =
-            match t, rn with
-            | 0, _ ->
-                r.[rn]
-            | 1, _ ->
-                read16 mem r.[rn]
-            | _, _ ->
-                0
-
         match t1, rn1, t2, rn2 with
-        | 2, 7, 0, _ ->
-            let w1 = fetch()
-            r.[rn2] <- w1
-        | 2, 7, 1, _ ->
-            let w1 = fetch()
-            write16 mem r.[rn2] w1
         | 2, 7, 6, _ ->
             let w1 = fetch()
             let w2 = fetch()
@@ -74,10 +73,6 @@ let main file =
         let rn2 = w &&& 7
 
         match t1, rn1, t2, rn2 with
-        | 0, _, 1, _ ->
-            mem.[r.[rn2]] <- byte r.[rn1]
-        | 0, _, 6, _ ->
-            mem.[r.[rn2] + fetch()] <- byte r.[rn1]
         | 2, 7, 1, _ ->
             let w1 = fetch()
             mem.[r.[rn2]] <- byte w1
@@ -85,6 +80,10 @@ let main file =
             let w1 = fetch()
             let w2 = fetch()
             mem.[r.[rn2] + w2] <- byte w1
+        | _, _, 1, _ ->
+            mem.[r.[rn2]] <- byte (readopr t1 rn1)
+        | _, _, 6, _ ->
+            mem.[r.[rn2] + fetch()] <- byte (readopr t1 rn1)
         | _ ->
             printfn "??"
 
@@ -107,7 +106,7 @@ let main file =
         | 2, 7, 0, _ ->
             let w1 = fetch()
             r.[rn2] <- r.[rn2] - w1
-        | 2, 7, 6, _  ->
+        | 2, 7, 6, 7  ->
             let w1 = fetch()
             let w2 = fetch()
             let addr = r.[7] + w2

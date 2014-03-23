@@ -4,6 +4,16 @@ sys write
 hello
 6
 
+mov $hello, r0
+mov $hello, r1
+mov 2(r1), (r0)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
 / r1 = hello;
 / r0 = 0x4548;
 / *(uint16_t *)r1 = r0;
