@@ -25,7 +25,7 @@ let main file =
     // mutableと違い、mutableと同じ場所で定義された関数の中で参照することができる
     let running = ref true
 
-    let readopr t rn savepc =
+    let readoprbase t rn savepc =
         match t, rn with
         | 0, _ ->
             r.[rn]
@@ -41,6 +41,10 @@ let main file =
             fetch()
         | _, _ ->
             0
+
+    // 16ビット限定
+    let readopr w shift savepc =
+        readoprbase ((w >>> (shift + 3)) &&& 7) ((w >>> shift) &&& 7) savepc
 
     let writeoprbase t rn value b =
         if b then
@@ -74,23 +78,23 @@ let main file =
 
     // dd書き込み w order v fetch
     let mov w =
-        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
+        let src = readopr w 6 false
         writeopr w src false
 
     // dd書き込み w order v fetch
     let movb w =
-        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
+        let src = readopr w 6 false
         writeopr w src true
 
     let swab w =
-        let src = readopr ((w >>> 3) &&& 7) (w &&& 7) true
+        let src = readopr w 0 true
         let src = ((src &&& 0xff) <<< 8) ||| ((src &&& 0xff00) >>> 8)
         writeopr w src false
 
     // dd書き込み w order v fetch
     let sub w =
-        let src = readopr ((w >>> 9) &&& 7) ((w >>> 6) &&& 7) false
-        let dst = readopr ((w >>> 3) &&& 7)  (w        &&& 7) true
+        let src = readopr w 6 false
+        let dst = readopr w 0 true
         writeopr w (dst - src) false
 
     while !running && r.[7] < tsize do
