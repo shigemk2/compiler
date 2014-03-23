@@ -54,28 +54,24 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1 with
-        | 0 ->
-            match t2 with
-            | 1 ->
-                write16 mem r.[rn2] r.[rn1]
-            | 2 ->
-                let v   = fetch()
-                write16 mem (r.[rn2] + v) r.[rn1]
-            | 6 ->
-                let v   = fetch()
-                write16 mem (r.[rn2] + v) r.[rn1]
-            | _ -> printfn "??"
-        | 2 ->
-            if rn1 = 7 then
-              mov27 w
-            else
-                match t2 with
-                | 6 ->
-                    let v   = fetch()
-                    r.[rn2] <- read16 mem v
-                | _ -> printfn "??"
-        | _ -> printfn "??"
+        match t1, t2, rn1 with
+        | 0, 1, _ ->
+            write16 mem r.[rn2] r.[rn1]
+        | 0, 2, _ ->
+            let v   = fetch()
+            write16 mem (r.[rn2] + v) r.[rn1]
+        | 0, 6, _ ->
+            let v   = fetch()
+            write16 mem (r.[rn2] + v) r.[rn1]
+        | 0, _, _ ->
+            printfn "??"
+        | 2, _, 7 ->
+            mov27 w
+        | 2, 6, _ ->
+            let v   = fetch()
+            r.[rn2] <- read16 mem v
+        | _, _, _ ->
+            printfn "??"
 
     // dd書き込み w order
     let movb27 w =
