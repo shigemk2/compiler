@@ -75,14 +75,15 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1, rn1, t2 with
-        | 0, _, 1 ->
+        match t1, rn1, t2, rn2 with
+        | 0, _, 1, _ ->
             mem.[r.[rn2]] <- byte r.[rn1]
-        | 0, _, 6 ->
+        | 0, _, 6, _ ->
             mem.[r.[rn2] + fetch()] <- byte r.[rn1]
-        | 2, 7, _ ->
+        | 2, 7, _, _ ->
             movb27 w
-        | _ -> printfn "??"
+        | _ ->
+            printfn "??"
 
     let swab w =
         let t = ((w >>> 3) &&& 7)
