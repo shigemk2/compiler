@@ -116,17 +116,14 @@ let main file =
     let sub27 w =
         let t = ((w >>> 3) &&& 7)
         let rn = w &&& 7
-        if rn = 7 then
-            match t with
-            | 6 ->
-                 let w1 = fetch()
-                 let w2 = fetch()
-                 let addr = r.[7] + w2
-                 write16 mem addr ((read16 mem addr) - (w1))
-            | _ -> printfn "??"
-        else
-            match t with
-            | _ -> printfn "??"
+        match t, rn with
+        | 6, 7 ->
+            let w1 = fetch()
+            let w2 = fetch()
+            let addr = r.[7] + w2
+            write16 mem addr ((read16 mem addr) - (w1))
+        | _, _ ->
+            printfn "??"
 
     // dd書き込み w order v fetch
     let sub w =
@@ -135,13 +132,10 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1 with
-        | 2 ->
-            if rn1 = 7 then
-                sub27 w
-            else
-                printfn "??"
-        | _ -> printfn "??"
+        match t1, rn1, t2 with
+        | 2, 7, _ ->
+            sub27 w
+        | _, _, _ -> printfn "??"
 
     while running && r.[7] < tsize do
         match fetch() with
