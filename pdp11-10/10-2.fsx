@@ -69,8 +69,8 @@ let main file =
                 // running <- false
                 running := false
 
-    let writeopr w value b =
-      writeoprbase ((w >>> 3) &&& 7) (w &&& 7) value b
+    let writeopr w =
+      writeoprbase ((w >>> 3) &&& 7) (w &&& 7)
 
     // dd書き込み w order v fetch
     let mov w =
