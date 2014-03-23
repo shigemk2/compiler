@@ -45,25 +45,27 @@ let main file =
 
     // dd書き込み w order v fetch
     let mov w =
+        // t type
+        // rn register number
         let t1  = ((w >>> 9) &&& 7)
         let rn1 = ((w >>> 6) &&& 7)
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
-        match t1, t2, rn1 with
-        | 0, 1, _ ->
+        match t1, rn1, t2 with
+        | 0, _, 1 ->
             write16 mem r.[rn2] r.[rn1]
-        | 0, 2, _ ->
+        | 0, _, 2 ->
             let v   = fetch()
             write16 mem (r.[rn2] + v) r.[rn1]
-        | 0, 6, _ ->
+        | 0, _, 6 ->
             let v   = fetch()
             write16 mem (r.[rn2] + v) r.[rn1]
         | 0, _, _ ->
             printfn "??"
-        | 2, _, 7 ->
+        | 2, 7, _ ->
             mov27 w
-        | 2, 6, _ ->
+        | 2, _, 6 ->
             let v   = fetch()
             r.[rn2] <- read16 mem v
         | _, _, _ ->
