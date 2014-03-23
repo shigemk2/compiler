@@ -20,7 +20,10 @@ let main file =
         r.[7] <- r.[7] + 2
         ret
 
-    let mutable running = true
+    // let mutable running = true
+    // mutableと同じことができる。
+    // mutableと違い、mutableと同じ場所で定義された関数の中で参照することができる
+    let running = ref true
 
     // dd書き込み w order v fetch
     let mov w =
@@ -32,8 +35,12 @@ let main file =
         let rn2 = w &&& 7
 
         match t1, rn1, t2, rn2 with
+        | 0, _, 0, _ ->
+            r.[rn2] <- r.[rn1]
         | 0, _, 1, _ ->
             write16 mem r.[rn2] r.[rn1]
+        | 1, _, 0, _ ->
+            r.[rn2] <- read16 mem r.[rn1]
         | 0, _, 6, _ ->
             let v   = fetch()
             write16 mem (r.[rn2] + v) r.[rn1]
@@ -48,7 +55,9 @@ let main file =
             let w2 = fetch()
             write16 mem (r.[rn2] + w2) w1
         | _ ->
-            printfn "??"
+            printfn "?? %x" r.[7]
+            // running <- false
+            running := false
 
     // dd書き込み w order v fetch
     let movb w =
@@ -88,14 +97,17 @@ let main file =
         let rn2 = w &&& 7
 
         match t1, rn1, t2, rn2 with
+        | 2, 7, 0, _ ->
+            let w1 = fetch()
+            r.[rn2] <- r.[rn2] - w1
         | 2, 7, 6, _  ->
             let w1 = fetch()
             let w2 = fetch()
             let addr = r.[7] + w2
             write16 mem addr ((read16 mem addr) - (w1))
-        | _ -> printfn "??"
+        | _ -> printfn "?? %o" r.[7]
 
-    while running && r.[7] < tsize do
+    while !running && r.[7] < tsize do
         match fetch() with
         // mutableを付けない変数は中身が変わらないので、ビットシフト演算しても中身は変わらない
         | w when (w >>> 12 = 0o01) -> mov w
@@ -105,7 +117,8 @@ let main file =
         // sys 1 ; exit
         | 0o104401 ->
             // exit r.[0]
-            running <- false
+            // running <- false
+            running := false
         // sys 4 ; write
         | 0o104404 ->
             let arg1 = fetch()
@@ -114,7 +127,8 @@ let main file =
             printf "%s" (System.Text.Encoding.ASCII.GetString bytes)
         | w ->
             printfn "%04x: %04x ???" r.[7] w
-            running <- false
+            // running <- false
+            running := false
 
 let test() =
     printfn "-------------------"
@@ -131,5 +145,7 @@ let test() =
     main "../pdp11-8/write-6.out"
     printfn "-------------------"
     main "../pdp11-9/write-7.out"
+    printfn "-------------------"
+    main "../pdp11-10/write-8.out"
     printfn "-------------------"
 
