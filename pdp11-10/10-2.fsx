@@ -34,18 +34,16 @@ let main file =
         let t2  = ((w >>> 3) &&& 7)
         let rn2 = w &&& 7
 
+        let readopr t rn =
+            match t, rn with
+            | 0, _ ->
+                r.[rn]
+            | 1, _ ->
+                read16 mem r.[rn]
+            | _, _ ->
+                0
+
         match t1, rn1, t2, rn2 with
-        | 0, _, 0, _ ->
-            r.[rn2] <- r.[rn1]
-        | 0, _, 1, _ ->
-            write16 mem r.[rn2] r.[rn1]
-        | 1, _, 0, _ ->
-            r.[rn2] <- read16 mem r.[rn1]
-        | 1, _, 1, _ ->
-            write16 mem r.[rn2] (read16 mem r.[rn1])
-        | 0, _, 6, _ ->
-            let v   = fetch()
-            write16 mem (r.[rn2] + v) r.[rn1]
         | 2, 7, 0, _ ->
             let w1 = fetch()
             r.[rn2] <- w1
@@ -56,6 +54,13 @@ let main file =
             let w1 = fetch()
             let w2 = fetch()
             write16 mem (r.[rn2] + w2) w1
+        | _, _, 0, _ ->
+            r.[rn2] <- (readopr t1 rn1)
+        | _, _, 1, _ ->
+            write16 mem r.[rn2] (readopr t1 rn1)
+        | _, _, 6, _ ->
+            let v   = fetch()
+            write16 mem (r.[rn2] + v) (readopr t1 rn1)
         | _ ->
             printfn "?? %x" r.[7]
             // running <- false
