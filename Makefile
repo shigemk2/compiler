@@ -1,3 +1,6 @@
+all:
+	$(MAKE) -C pdp11-10
+
 7run.out: 7runall.sh
 	./7runall.sh > $@
 
