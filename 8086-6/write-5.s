@@ -7,10 +7,12 @@ int 7
 
 ! bx = hello;
 ! ax = 0x4548;
-! *(uint16_t *)bx = ax;
+! *(uint8_t *)bx = al;
+! *(uint8_t *)(bx + 1) = ah;
 mov bx, #hello
 mov ax, #0x4548
-mov (bx), ax
+movb (bx), al
+movb 1(bx), ah
 
 ! write(1, hello, 6);
 mov ax, #1
@@ -20,11 +22,13 @@ int 7
 
 
 ! bx = hello;
-! cx = 0x4c4c;
-! *(uint16_t *)(bx + 2) = cx;
+! ch = 'H';
+! cl = 'E';
+! *(uint16_t *)bx = cx;
 mov bx, #hello
-mov cx, #0x4c4c
-mov 2(bx), cx
+movb ch, #'H'
+movb cl, #'E'
+mov (bx), cx
 
 ! write(1, hello, 6);
 mov ax, #1

@@ -1,4 +1,4 @@
-let aout = System.IO.File.ReadAllBytes "write-4.out"
+let aout = System.IO.File.ReadAllBytes "write-5.out"
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b + 1]) <<< 8)
 let write16 (a:byte[]) b c =
