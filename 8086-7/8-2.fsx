@@ -54,6 +54,12 @@ while ip < tsize do
     | 0x89, 0x0f ->
         write16 mem bx cx
         ip <- ip + 2
+    | 0xc7, 0x06 ->
+        write16 mem (read16 mem (ip + 2)) (read16 mem (ip + 4))
+        ip <- ip + 6
+    | 0xc6, 0x06 ->
+        mem.[read16 mem (ip + 2)] <- mem.[ip + 4]
+        ip <- ip + 5
     | 0xcd, 0x07 ->
         match int mem.[ip + 2] with
         | 1 ->
