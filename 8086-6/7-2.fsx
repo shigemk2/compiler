@@ -38,6 +38,22 @@ while ip < tsize do
     | 0xb9, _ ->
         cx <- read16 mem (ip + 1)
         ip <- ip + 3
+    | 0x88, 0x07 ->
+        mem.[bx] <- byte ax
+        ip <- ip + 2
+    | 0x88, 0x67 ->
+        mem.[bx + int mem.[ip + 2]] <- byte (ax >>> 8)
+        ip <- ip + 3
+    | 0xb5, _ ->
+        cx <- ((int mem.[ip + 1]) <<< 8) ||| (cx &&& 0xff)
+        mem.[bx] <- byte ax
+        ip <- ip + 2
+    | 0xb1, _ ->
+        cx <- (cx &&& 0xff00) ||| (int mem.[ip + 1])
+        ip <- ip + 2
+    | 0x89, 0x0f ->
+        write16 mem bx cx
+        ip <- ip + 2
     | 0xcd, 0x07 ->
         match int mem.[ip + 2] with
         | 1 ->
