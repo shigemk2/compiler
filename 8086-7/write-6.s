@@ -5,14 +5,8 @@ int 7
 .data2 hello, 6
 
 
-! bx = hello;
-! ax = 0x4548;
-! *(uint8_t *)bx = al;
-! *(uint8_t *)(bx + 1) = ah;
-mov bx, #hello
-mov ax, #0x4548
-movb (bx), al
-movb 1(bx), ah
+! *(uint16_t *)hello = 0x4548;
+mov hello, #0x4548
 
 ! write(1, hello, 6);
 mov ax, #1
@@ -21,14 +15,18 @@ int 7
 .data2 hello, 6
 
 
-! bx = hello;
-! ch = 'H';
-! cl = 'E';
-! *(uint16_t *)bx = cx;
-mov bx, #hello
-movb ch, #'H'
-movb cl, #'E'
-mov (bx), cx
+! *(uint16_t *)(hello + 2) = 0x4c4c;
+mov hello + 2, #0x4c4c
+
+! write(1, hello, 6);
+mov ax, #1
+int 7
+.data1 4
+.data2 hello, 6
+
+
+! *(uint8_t *)(hello + 4) = 'O';
+movb hello + 4, #'O'
 
 ! write(1, hello, 6);
 mov ax, #1

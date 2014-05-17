@@ -1,3 +1,14 @@
+// cx 16bit 2byte
+// ch 8bit 1byte cl 8bit 1byte
+// ax bx cx 全部数字が入る
+// bx = 数字
+// (bx) メモリのbx番目
+// movb ch, #'H'
+// movb cl, #'E'
+// ↑8086系列はこのような分割が連綿と続く
+// 逆アセとアセンブラで文法が違うので、今のところmovbが逆アセでは表示されない
+// ax ah alすべてレジスタ
+// レジスタの最大サイズが16bitなのが8086
 let aout = System.IO.File.ReadAllBytes "write-5.out"
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b + 1]) <<< 8)
