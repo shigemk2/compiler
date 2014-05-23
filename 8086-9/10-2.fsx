@@ -9,7 +9,7 @@ let tsize = read16 aout 2
 let dsize = read16 aout 4
 let mem = Array.zeroCreate<byte> 0x10000
 mem.[0 .. tsize + dsize - 1] <- aout.[16 .. 16 + tsize + dsize - 1]
-let mutable ax, bx, cx, ip = 0, 0, 0, 0
+let mutable ax, bx, cx, dx, sp, bp, si, di, ip = 0, 0, 0, 0, 0, 0, 0, 0, 0
 while ip < tsize do
     match int mem.[ip], int mem.[ip + 1] with
     | 0xb8, _ ->
@@ -69,6 +69,21 @@ while ip < tsize do
         let addr = read16 mem (ip + 2)
         mem.[bx + addr] <- mem.[addr] - mem.[ip + 4]
         ip <- ip + 5
+    | 0xba, _ ->
+        dx <- read16 mem (ip + 1)
+        ip <- ip + 3
+    | 0xbc, _ ->
+        sp <- read16 mem (ip + 1)
+        ip <- ip + 3
+    | 0xbd, _ ->
+        bp <- read16 mem (ip + 1)
+        ip <- ip + 3
+    | 0xbe, _ ->
+        si <- read16 mem (ip + 1)
+        ip <- ip + 3
+    | 0xbf, _ ->
+        di <- read16 mem (ip + 1)
+        ip <- ip + 3
     | 0xcd, 0x07 ->
         match int mem.[ip + 2] with
         | 1 ->
