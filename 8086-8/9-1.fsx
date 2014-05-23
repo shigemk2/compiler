@@ -44,6 +44,10 @@ while ip < tsize do
         show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
     | 0xc6, 0x06 ->
         show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
+    | 0x81, 0x2e ->
+        show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
+    | 0x80, 0x2e ->
+        show 5 (sprintf "sub byte[%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
     | 0xcd, 0x07 ->
         show 2 "int 7"
         match int mem.[ip] with
