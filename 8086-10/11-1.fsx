@@ -37,10 +37,11 @@ while ip < tsize do
         | _ -> show 2 "??"
     | 0xb9, _ ->
         show 3 (sprintf "mov cx, %04x" (read16 mem (ip + 1)))
-    | 0x88, 0x07 ->
-        show 2 (sprintf "mov [bx], al")
-    | 0x88, 0x67 ->
-        show 3 (sprintf "mov [bx+%x], ah" mem.[ip + 2])
+    | 0x88, w ->
+        match w with
+        | 0x07 -> show 2 (sprintf "mov [bx], al")
+        | 0x67 -> show 3 (sprintf "mov [bx+%x], ah" mem.[ip + 2])
+        | _ -> show 2 "??"
     | 0xb5, _ ->
         show 2 (sprintf "mov ch, %02x" mem.[ip + 1])
     | 0xb1, _ ->
