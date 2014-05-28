@@ -23,14 +23,18 @@ while ip < tsize do
         | 0x47 -> show 5 (sprintf "mov [bx+%x], %04x" mem.[ip + 2] (read16 mem (ip + 3)))
         | 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
         | _ -> show 4 "??"
-    | 0xc6, 0x07 ->
-        show 3 (sprintf "mov byte [bx], %02x" mem.[ip + 2])
-    | 0xc6, 0x47 ->
-        show 4 (sprintf "mov byte [bx+%x], %02x" mem.[ip + 2] mem.[ip + 3])
-    | 0x89, 0x07 ->
-        show 2 (sprintf "mov [bx], ax")
-    | 0x89, 0x4f ->
-        show 3 (sprintf "mov [bx+%x], cx" mem.[ip + 2])
+    | 0xc6, w ->
+        match w with
+        | 0x07 -> show 3 (sprintf "mov byte [bx], %02x" mem.[ip + 2])
+        | 0x47 -> show 4 (sprintf "mov byte [bx+%x], %02x" mem.[ip + 2] mem.[ip + 3])
+        | 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
+        | _ -> show 4 "??"
+    | 0x89, w ->
+        match w with
+        | 0x07 -> show 2 (sprintf "mov [bx], ax")
+        | 0x4f -> show 3 (sprintf "mov [bx+%x], cx" mem.[ip + 2])
+        | 0x0f -> show 2 (sprintf "mov [bx], cx")
+        | _ -> show 2 "??"
     | 0xb9, _ ->
         show 3 (sprintf "mov cx, %04x" (read16 mem (ip + 1)))
     | 0x88, 0x07 ->
@@ -41,10 +45,6 @@ while ip < tsize do
         show 2 (sprintf "mov ch, %02x" mem.[ip + 1])
     | 0xb1, _ ->
         show 2 (sprintf "mov cl, %02x" mem.[ip + 1])
-    | 0x89, 0x0f ->
-        show 2 (sprintf "mov [bx], cx")
-    | 0xc6, 0x06 ->
-        show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
     | 0x81, 0x2e ->
         show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
     | 0x80, 0x2e ->
