@@ -10,16 +10,19 @@ let show len dis =
     let bin = [ for b in mem.[ip .. ip + len - 1] -> sprintf "%02x" b ]
     printfn "%04x: %-12s  %s" ip (String.concat "" bin) dis
     ip <- ip + len
+
 while ip < tsize do
     match int mem.[ip], int mem.[ip + 1] with
     | 0xb8, _ ->
         show 3 (sprintf "mov ax, %04x" (read16 mem (ip + 1)))
     | 0xbb, _ ->
         show 3 (sprintf "mov bx, %04x" (read16 mem (ip + 1)))
-    | 0xc7, 0x07 ->
-        show 4 (sprintf "mov [bx], %04x" (read16 mem (ip + 2)))
-    | 0xc7, 0x47 ->
-        show 5 (sprintf "mov [bx+%x], %04x" mem.[ip + 2] (read16 mem (ip + 3)))
+    | 0xc7, w ->
+        match w with
+        | 0x07 -> show 4 (sprintf "mov [bx], %04x" (read16 mem (ip + 2)))
+        | 0x47 -> show 5 (sprintf "mov [bx+%x], %04x" mem.[ip + 2] (read16 mem (ip + 3)))
+        | 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
+        | _ -> show 4 "??"
     | 0xc6, 0x07 ->
         show 3 (sprintf "mov byte [bx], %02x" mem.[ip + 2])
     | 0xc6, 0x47 ->
@@ -40,8 +43,6 @@ while ip < tsize do
         show 2 (sprintf "mov cl, %02x" mem.[ip + 1])
     | 0x89, 0x0f ->
         show 2 (sprintf "mov [bx], cx")
-    | 0xc7, 0x06 ->
-        show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
     | 0xc6, 0x06 ->
         show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
     | 0x81, 0x2e ->
