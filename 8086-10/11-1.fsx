@@ -11,18 +11,15 @@ let show len dis =
     printfn "%04x: %-12s  %s" ip (String.concat "" bin) dis
     ip <- ip + len
 
-let op = ["ax", "cx", "dx", "bx", "sp", "bp", "si", "di"]
+let op = [|"ax"; "cx"; "dx"; "bx"; "sp"; "bp"; "si"; "di"|]
+
+let movreg x y =
+    let pc = x - 0xb8
+    show 3 (sprintf "mov %s, %04x" op.[pc] (read16 mem (ip + 1)))
 
 while ip < tsize do
     match int mem.[ip], int mem.[ip + 1] with
-    | (x, y) when ((x - 0xb8) = 0) -> show 3 (sprintf "mov ax, %04x" (read16 mem (ip + 1)))
-    | (x, y) when ((x - 0xb8) = 1) -> show 3 (sprintf "mov cx, %04x" (read16 mem (ip + 1)))
-    | (x, y) when ((x - 0xb8) = 2) -> show 3 (sprintf "mov dx, %04x" (read16 mem (ip + 1)))
-    | (x, y) when ((x - 0xb8) = 3) -> show 3 (sprintf "mov bx, %04x" (read16 mem (ip + 1)))
-    | (x, y) when ((x - 0xb8) = 4) -> show 3 (sprintf "mov sp, %04x" (read16 mem (ip + 1)))
-    | (x, y) when ((x - 0xb8) = 5) -> show 3 (sprintf "mov bp, %04x" (read16 mem (ip + 1)))
-    | (x, y) when ((x - 0xb8) = 6) -> show 3 (sprintf "mov si, %04x" (read16 mem (ip + 1)))
-    | (x, y) when ((x - 0xb8) = 7) -> show 3 (sprintf "mov di, %04x" (read16 mem (ip + 1)))
+    | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg x y
     | 0xc7, w ->
         match w with
         | 0x07 -> show 4 (sprintf "mov [bx], %04x" (read16 mem (ip + 2)))
