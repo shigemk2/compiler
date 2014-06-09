@@ -1,4 +1,4 @@
-let aout = System.IO.File.ReadAllBytes "write-8.out"
+let aout = System.IO.File.ReadAllBytes "regs.out"
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b + 1]) <<< 8)
 let tsize = read16 aout 2
@@ -13,8 +13,7 @@ let show len dis =
 
 while ip < tsize do
     match int mem.[ip], int mem.[ip + 1] with
-    | 0xb8, _ ->
-        show 3 (sprintf "mov ax, %04x" (read16 mem (ip + 1)))
+    | (x, y) when ((x - 0xb8) = 0) -> show 3 (sprintf "mov ax, %04x" (read16 mem (ip + 1)))
     | 0xb9, _ ->
         show 3 (sprintf "mov cx, %04x" (read16 mem (ip + 1)))
     | 0xba, _ ->
