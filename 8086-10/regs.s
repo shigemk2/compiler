@@ -1,8 +1,27 @@
-mov ax, #0
-mov cx, #0
-mov dx, #0
-mov bx, #0
-mov sp, #0
-mov bp, #0
-mov si, #0
-mov di, #0
+mov ax, #1
+mov cx, #1
+mov dx, #1
+mov bx, #1
+mov sp, #1
+mov bp, #1
+mov si, #1
+mov di, #1
+mov (si), ax
+mov (si), cx
+mov (si), dx
+mov (si), bx
+mov (di), ax
+mov (di), cx
+mov (di), dx
+mov (di), bx
+mov (bp), ax
+mov (bp), cx
+mov (bp), dx
+mov (bp), bx
+mov (bx), ax
+mov (bx), cx
+mov (bx), dx
+mov (bx), bx
+
+.sect .data
+hello: .ascii "hello\n"
