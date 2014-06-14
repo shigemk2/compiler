@@ -1,4 +1,4 @@
-let aout = System.IO.File.ReadAllBytes "regs.out"
+let aout = System.IO.File.ReadAllBytes "../8086-8/write-7.out"
 let read16 (a:byte[]) b =
     (int a.[b]) ||| ((int a.[b + 1]) <<< 8)
 let tsize = read16 aout 2
@@ -22,26 +22,26 @@ while ip < tsize do
     | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg x y
     | 0xc7, w ->
         match w with
-        | 0x07 -> show 4 (sprintf "mov [bx], %04x" (read16 mem (ip + 2)))
-        | 0x47 -> show 5 (sprintf "mov [bx+%x], %04x" mem.[ip + 2] (read16 mem (ip + 3)))
+        | 0x07 -> show 4 (sprintf "mov %s, %04x" op.[3] (read16 mem (ip + 2)))
+        | 0x47 -> show 5 (sprintf "mov [%s+%x], %04x" op.[3] mem.[ip + 2] (read16 mem (ip + 3)))
         | 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
         | _ -> show 4 "??"
     | 0xc6, w ->
         match w with
-        | 0x07 -> show 3 (sprintf "mov byte [bx], %02x" mem.[ip + 2])
-        | 0x47 -> show 4 (sprintf "mov byte [bx+%x], %02x" mem.[ip + 2] mem.[ip + 3])
+        | 0x07 -> show 3 (sprintf "mov byte [%s], %02x" op.[3] mem.[ip + 2])
+        | 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" op.[3] mem.[ip + 2] mem.[ip + 3])
         | 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
         | _ -> show 4 "??"
     | 0x89, w ->
         match w with
-        | 0x07 -> show 2 (sprintf "mov [bx], ax")
-        | 0x4f -> show 3 (sprintf "mov [bx+%x], cx" mem.[ip + 2])
-        | 0x0f -> show 2 (sprintf "mov [bx], cx")
+        | 0x07 -> show 2 (sprintf "mov [%s], %s" op.[3] op.[0])
+        | 0x4f -> show 3 (sprintf "mov [%s+%x], %s" op.[3] mem.[ip + 2] op.[1])
+        | 0x0f -> show 2 (sprintf "mov [%s], %s" op.[3] op.[1])
         | _ -> show 2 "??"
     | 0x88, w ->
         match w with
-        | 0x07 -> show 2 (sprintf "mov [bx], al")
-        | 0x67 -> show 3 (sprintf "mov [bx+%x], ah" mem.[ip + 2])
+        | 0x07 -> show 2 (sprintf "mov [%s], al" op.[3])
+        | 0x67 -> show 3 (sprintf "mov [%s+%x], ah" op.[3] mem.[ip + 2])
         | _ -> show 2 "??"
     | 0xb5, _ ->
         show 2 (sprintf "mov ch, %02x" mem.[ip + 1])
