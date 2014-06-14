@@ -19,15 +19,19 @@ let main file =
     let reg16 = [|"ax"; "cx"; "dx"; "bx"; "sp"; "bp"; "si"; "di"|]
     let reg8  = [|"al"; "cl"; "dl"; "bl"; "ah"; "ch"; "dh"; "bh"|]
 
-    let movreg x y =
+    let movreg16 x y =
         let pc = x - 0xb8
         show 3 (sprintf "mov %s, %04x" reg16.[pc] (read16 mem (ip + 1)))
+    let movreg8 x y =
+        let pc = x - 0xb0
+        show 2 (sprintf "mov %s, %02x" reg8.[pc] mem.[ip + 1])
 
     let running = ref true
 
     while !running && ip < tsize do
         match int mem.[ip], int mem.[ip + 1] with
-        | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg x y
+        | (x, y) when ((0 <= (x - 0xb0)) && ((x - 0xb0) <= 7)) -> movreg8 x y
+        | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg16 x y
         | 0xc7, w ->
             match w with
             | 0x07 -> show 4 (sprintf "mov %s, %04x" reg16.[3] (read16 mem (ip + 2)))
@@ -59,22 +63,6 @@ let main file =
             | _ ->
                 show 2 "??"
                 running := false
-        | 0xb0, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[0] mem.[ip + 1])
-        | 0xb1, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[1] mem.[ip + 1])
-        | 0xb2, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[2] mem.[ip + 1])
-        | 0xb3, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[3] mem.[ip + 1])
-        | 0xb4, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[4] mem.[ip + 1])
-        | 0xb5, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[5] mem.[ip + 1])
-        | 0xb6, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[6] mem.[ip + 1])
-        | 0xb7, _ ->
-            show 2 (sprintf "mov %s, %02x" reg8.[7] mem.[ip + 1])
         | 0x81, 0x2e ->
             show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
         | 0x80, 0x2e ->
