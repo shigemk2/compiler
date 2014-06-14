@@ -15,11 +15,13 @@ let main file =
         printfn "%04x: %-12s  %s" ip (String.concat "" bin) dis
         ip <- ip + len
 
-    let op = [|"ax"; "cx"; "dx"; "bx"; "sp"; "bp"; "si"; "di"|]
+    // レジスタのサイズが16ビットor8ビット
+    let reg16 = [|"ax"; "cx"; "dx"; "bx"; "sp"; "bp"; "si"; "di"|]
+    let reg8  = [|"al"; "cl"; "dl"; "bl"; "ah"; "ch"; "dh"; "bh"|]
 
     let movreg x y =
         let pc = x - 0xb8
-        show 3 (sprintf "mov %s, %04x" op.[pc] (read16 mem (ip + 1)))
+        show 3 (sprintf "mov %s, %04x" reg16.[pc] (read16 mem (ip + 1)))
 
     let running = ref true
 
@@ -28,39 +30,51 @@ let main file =
         | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg x y
         | 0xc7, w ->
             match w with
-            | 0x07 -> show 4 (sprintf "mov %s, %04x" op.[3] (read16 mem (ip + 2)))
-            | 0x47 -> show 5 (sprintf "mov [%s+%x], %04x" op.[3] mem.[ip + 2] (read16 mem (ip + 3)))
+            | 0x07 -> show 4 (sprintf "mov %s, %04x" reg16.[3] (read16 mem (ip + 2)))
+            | 0x47 -> show 5 (sprintf "mov [%s+%x], %04x" reg16.[3] mem.[ip + 2] (read16 mem (ip + 3)))
             | 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
             | _ ->
                 show 4 "??"
                 running := false
         | 0xc6, w ->
             match w with
-            | 0x07 -> show 3 (sprintf "mov byte [%s], %02x" op.[3] mem.[ip + 2])
-            | 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" op.[3] mem.[ip + 2] mem.[ip + 3])
+            | 0x07 -> show 3 (sprintf "mov byte [%s], %02x" reg16.[3] mem.[ip + 2])
+            | 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" reg16.[3] mem.[ip + 2] mem.[ip + 3])
             | 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
             | _ ->
                 show 4 "??"
                 running := false
         | 0x89, w ->
             match w with
-            | 0x07 -> show 2 (sprintf "mov [%s], %s" op.[3] op.[0])
-            | 0x4f -> show 3 (sprintf "mov [%s+%x], %s" op.[3] mem.[ip + 2] op.[1])
-            | 0x0f -> show 2 (sprintf "mov [%s], %s" op.[3] op.[1])
+            | 0x07 -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[0])
+            | 0x4f -> show 3 (sprintf "mov [%s+%x], %s" reg16.[3] mem.[ip + 2] reg16.[1])
+            | 0x0f -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[1])
             | _ ->
                 show 2 "??"
                 running := false
         | 0x88, w ->
             match w with
-            | 0x07 -> show 2 (sprintf "mov [%s], al" op.[3])
-            | 0x67 -> show 3 (sprintf "mov [%s+%x], ah" op.[3] mem.[ip + 2])
+            | 0x07 -> show 2 (sprintf "mov [%s], al" reg16.[3])
+            | 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
             | _ ->
                 show 2 "??"
                 running := false
-        | 0xb5, _ ->
-            show 2 (sprintf "mov ch, %02x" mem.[ip + 1])
+        | 0xb0, _ ->
+            show 2 (sprintf "mov al, %02x" mem.[ip + 1])
         | 0xb1, _ ->
             show 2 (sprintf "mov cl, %02x" mem.[ip + 1])
+        | 0xb2, _ ->
+            show 2 (sprintf "mov dl, %02x" mem.[ip + 1])
+        | 0xb3, _ ->
+            show 2 (sprintf "mov bl, %02x" mem.[ip + 1])
+        | 0xb4, _ ->
+            show 2 (sprintf "mov ah, %02x" mem.[ip + 1])
+        | 0xb5, _ ->
+            show 2 (sprintf "mov ch, %02x" mem.[ip + 1])
+        | 0xb6, _ ->
+            show 2 (sprintf "mov dh, %02x" mem.[ip + 1])
+        | 0xb7, _ ->
+            show 2 (sprintf "mov bh, %02x" mem.[ip + 1])
         | 0x81, 0x2e ->
             show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
         | 0x80, 0x2e ->
@@ -82,7 +96,6 @@ let main file =
             show 2 (sprintf "int %x" n)
         | _ ->
             show 1 "???"
-            running := false
 
 let test() =
     printfn "-------------------"
