@@ -32,41 +32,19 @@ let main file =
         match int mem.[ip], int mem.[ip + 1] with
         | (x, y) when ((0 <= (x - 0xb0)) && ((x - 0xb0) <= 7)) -> movreg8 x y
         | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg16 x y
-        | 0xc7, w ->
-            match w with
-            | 0x07 -> show 4 (sprintf "mov %s, %04x" reg16.[3] (read16 mem (ip + 2)))
-            | 0x47 -> show 5 (sprintf "mov [%s+%x], %04x" reg16.[3] mem.[ip + 2] (read16 mem (ip + 3)))
-            | 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
-            | _ ->
-                show 4 "??"
-                running := false
-        | 0xc6, w ->
-            match w with
-            | 0x07 -> show 3 (sprintf "mov byte [%s], %02x" reg16.[3] mem.[ip + 2])
-            | 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" reg16.[3] mem.[ip + 2] mem.[ip + 3])
-            | 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
-            | _ ->
-                show 4 "??"
-                running := false
-        | 0x89, w ->
-            match w with
-            | 0x07 -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[0])
-            | 0x4f -> show 3 (sprintf "mov [%s+%x], %s" reg16.[3] mem.[ip + 2] reg16.[1])
-            | 0x0f -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[1])
-            | _ ->
-                show 2 "??"
-                running := false
-        | 0x88, w ->
-            match w with
-            | 0x07 -> show 2 (sprintf "mov [%s], al" reg16.[3])
-            | 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
-            | _ ->
-                show 2 "??"
-                running := false
-        | 0x81, 0x2e ->
-            show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
-        | 0x80, 0x2e ->
-            show 5 (sprintf "sub byte[%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
+        | 0xc7, 0x07 -> show 4 (sprintf "mov %s, %04x" reg16.[3] (read16 mem (ip + 2)))
+        | 0xc7, 0x47 -> show 5 (sprintf "mov [%s+%x], %04x" reg16.[3] mem.[ip + 2] (read16 mem (ip + 3)))
+        | 0xc7, 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
+        | 0xc6, 0x07 -> show 3 (sprintf "mov byte [%s], %02x" reg16.[3] mem.[ip + 2])
+        | 0xc6, 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" reg16.[3] mem.[ip + 2] mem.[ip + 3])
+        | 0xc6, 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
+        | 0x89, 0x07 -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[0])
+        | 0x89, 0x4f -> show 3 (sprintf "mov [%s+%x], %s" reg16.[3] mem.[ip + 2] reg16.[1])
+        | 0x89, 0x0f -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[1])
+        | 0x88, 0x07 -> show 2 (sprintf "mov [%s], al" reg16.[3])
+        | 0x88, 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
+        | 0x81, 0x2e -> show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
+        | 0x80, 0x2e -> show 5 (sprintf "sub byte[%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
         | 0xcd, 0x07 ->
             show 2 "int 7"
             match int mem.[ip] with
