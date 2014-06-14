@@ -2,6 +2,7 @@ module hoge
 let mutable ip = 0
 
 let main file =
+    ip <- 0
     let aout = System.IO.File.ReadAllBytes file
     let read16 (a:byte[]) b =
         (int a.[b]) ||| ((int a.[b + 1]) <<< 8)
@@ -22,7 +23,7 @@ let main file =
 
     let running = ref true
 
-    while ip < tsize do
+    while !running && ip < tsize do
         match int mem.[ip], int mem.[ip + 1] with
         | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg x y
         | 0xc7, w ->
@@ -84,32 +85,32 @@ let main file =
             running := false
 
 let test() =
-    // printfn "-------------------"
-    // printfn "../8086-2/write-1.out"
-    // main "../8086-2/write-1.out"
+    printfn "-------------------"
+    printfn "../8086-2/write-1.out"
+    main "../8086-2/write-1.out"
     printfn "-------------------"
     printfn "../8086-3/write-2.out"
     main "../8086-3/write-2.out"
-    // printfn "-------------------"
-    // printfn "../8086-4/write-3.out"
-    // main "../8086-4/write-3.out"
-    // printfn "-------------------"
-    // printfn "../8086-5/write-4.out"
-    // main "../8086-5/write-4.out"
-    // printfn "-------------------"
-    // printfn "../8086-6/write-5.out"
-    // main "../8086-6/write-5.out"
-    // printfn "-------------------"
-    // printfn "../8086-7/write-6.out"
-    // main "../8086-7/write-6.out"
-    // printfn "-------------------"
-    // printfn "../8086-8/write-7.out"
-    // main "../8086-8/write-7.out"
-    // printfn "-------------------"
-    // printfn "../8086-9/regs.out"
-    // main "../8086-9/regs.out"
-    // printfn "-------------------"
-    // printfn "../8086-10/write-8.out"
-    // main "../8086-10/write-8.out"
-    // printfn "-------------------"
+    printfn "-------------------"
+    printfn "../8086-4/write-3.out"
+    main "../8086-4/write-3.out"
+    printfn "-------------------"
+    printfn "../8086-5/write-4.out"
+    main "../8086-5/write-4.out"
+    printfn "-------------------"
+    printfn "../8086-6/write-5.out"
+    main "../8086-6/write-5.out"
+    printfn "-------------------"
+    printfn "../8086-7/write-6.out"
+    main "../8086-7/write-6.out"
+    printfn "-------------------"
+    printfn "../8086-8/write-7.out"
+    main "../8086-8/write-7.out"
+    printfn "-------------------"
+    printfn "../8086-9/regs.out"
+    main "../8086-9/regs.out"
+    printfn "-------------------"
+    printfn "../8086-10/write-8.out"
+    main "../8086-10/write-8.out"
+    printfn "-------------------"
 
