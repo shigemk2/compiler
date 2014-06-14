@@ -20,11 +20,11 @@ let main file =
     let reg8  = [|"al"; "cl"; "dl"; "bl"; "ah"; "ch"; "dh"; "bh"|]
 
     let movreg16 x y =
-        let pc = x - 0xb8
-        show 3 (sprintf "mov %s, %04x" reg16.[pc] (read16 mem (ip + 1)))
+        let rn = x - 0xb8
+        show 3 (sprintf "mov %s, %04x" reg16.[rn] (read16 mem (ip + 1)))
     let movreg8 x y =
-        let pc = x - 0xb0
-        show 2 (sprintf "mov %s, %02x" reg8.[pc] mem.[ip + 1])
+        let rn = x - 0xb0
+        show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
 
     let running = ref true
 
