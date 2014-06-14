@@ -60,21 +60,21 @@ let main file =
                 show 2 "??"
                 running := false
         | 0xb0, _ ->
-            show 2 (sprintf "mov al, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[0] mem.[ip + 1])
         | 0xb1, _ ->
-            show 2 (sprintf "mov cl, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[1] mem.[ip + 1])
         | 0xb2, _ ->
-            show 2 (sprintf "mov dl, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[2] mem.[ip + 1])
         | 0xb3, _ ->
-            show 2 (sprintf "mov bl, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[3] mem.[ip + 1])
         | 0xb4, _ ->
-            show 2 (sprintf "mov ah, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[4] mem.[ip + 1])
         | 0xb5, _ ->
-            show 2 (sprintf "mov ch, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[5] mem.[ip + 1])
         | 0xb6, _ ->
-            show 2 (sprintf "mov dh, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[6] mem.[ip + 1])
         | 0xb7, _ ->
-            show 2 (sprintf "mov bh, %02x" mem.[ip + 1])
+            show 2 (sprintf "mov %s, %02x" reg8.[7] mem.[ip + 1])
         | 0x81, 0x2e ->
             show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
         | 0x80, 0x2e ->
