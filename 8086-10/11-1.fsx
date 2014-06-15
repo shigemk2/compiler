@@ -25,6 +25,9 @@ let main file =
     let movreg8 x y =
         let rn = x - 0xb0
         show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
+    let movadbx x y =
+        let rn = x - 0xb0
+        show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
 
     let running = ref true
 
@@ -38,23 +41,10 @@ let main file =
         | 0xc6, 0x07 -> show 3 (sprintf "mov byte [%s], %02x" reg16.[3] mem.[ip + 2])
         | 0xc6, 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" reg16.[3] mem.[ip + 2] mem.[ip + 3])
         | 0xc6, 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
-        | 0x89, 0x04 -> show 2 (sprintf "mov [%s], %s" reg16.[6] reg16.[0])
-        | 0x89, 0x0c -> show 2 (sprintf "mov [%s], %s" reg16.[6] reg16.[1])
-        | 0x89, 0x14 -> show 2 (sprintf "mov [%s], %s" reg16.[6] reg16.[2])
-        | 0x89, 0x1c -> show 2 (sprintf "mov [%s], %s" reg16.[6] reg16.[3])
-        | 0x89, 0x05 -> show 2 (sprintf "mov [%s], %s" reg16.[7] reg16.[0])
-        | 0x89, 0x0d -> show 2 (sprintf "mov [%s], %s" reg16.[7] reg16.[1])
-        | 0x89, 0x15 -> show 2 (sprintf "mov [%s], %s" reg16.[7] reg16.[2])
-        | 0x89, 0x1d -> show 2 (sprintf "mov [%s], %s" reg16.[7] reg16.[3])
-        | 0x89, 0x46 -> show 3 (sprintf "mov [%s], %s" reg16.[4] reg16.[0])
-        | 0x89, 0x4e -> show 3 (sprintf "mov [%s], %s" reg16.[4] reg16.[1])
-        | 0x89, 0x56 -> show 3 (sprintf "mov [%s], %s" reg16.[4] reg16.[2])
-        | 0x89, 0x5e -> show 3 (sprintf "mov [%s], %s" reg16.[4] reg16.[3])
-        | 0x89, 0x07 -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[0])
-        | 0x89, 0x0f -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[1])
-        | 0x89, 0x17 -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[2])
-        | 0x89, 0x1f -> show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[3])
         | 0x89, 0x4f -> show 3 (sprintf "mov [%s+%x], %s" reg16.[3] mem.[ip + 2] reg16.[1])
+        | 0x89, w ->
+            let rn = (w ||| 0x07) >>> 3
+            show 2 (sprintf "mov [%s], %s" reg16.[3] reg16.[rn])
         | 0x88, 0x07 -> show 2 (sprintf "mov [%s], al" reg16.[3])
         | 0x88, 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
         | 0x81, 0x2e -> show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
