@@ -15,6 +15,33 @@ mov (bx), bp
 mov (bx), si
 mov (bx), di
 
+mov (bp), ax
+mov (bp), cx
+mov (bp), dx
+mov (bp), bx
+mov (bp), sp
+mov (bp), bp
+mov (bp), si
+mov (bp), di
+
+mov (si), ax
+mov (si), cx
+mov (si), dx
+mov (si), bx
+mov (si), sp
+mov (si), bp
+mov (si), si
+mov (si), di
+
+mov (di), ax
+mov (di), cx
+mov (di), dx
+mov (di), bx
+mov (di), sp
+mov (di), bp
+mov (di), si
+mov (di), di
+
 mov 2(bx), ax
 mov 2(bx), cx
 mov 2(bx), dx
@@ -23,6 +50,33 @@ mov 2(bx), sp
 mov 2(bx), bp
 mov 2(bx), si
 mov 2(bx), di
+
+mov 2(bp), ax
+mov 2(bp), cx
+mov 2(bp), dx
+mov 2(bp), bx
+mov 2(bp), sp
+mov 2(bp), bp
+mov 2(bp), si
+mov 2(bp), di
+
+mov 2(si), ax
+mov 2(si), cx
+mov 2(si), dx
+mov 2(si), bx
+mov 2(si), sp
+mov 2(si), bp
+mov 2(si), si
+mov 2(si), di
+
+mov 2(di), ax
+mov 2(di), cx
+mov 2(di), dx
+mov 2(di), bx
+mov 2(di), sp
+mov 2(di), bp
+mov 2(di), si
+mov 2(di), di
 
 .sect .data
 hello: .ascii "hello\n"
