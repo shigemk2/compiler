@@ -47,7 +47,7 @@ let main file =
         | 0x89, op when op &&& 0b11000111 = 0b00000101 ->
             let rn = op >>> 3
             show 2 (sprintf "mov [di], %s" reg16.[rn])
-        | 0x89, op when op &&& 0b1100011111 = 0b01000110 ->
+        | 0x89, op when (op &&& 0b11000111 = 0b01000110) && (mem.[ip + 2] = byte 0) ->
             let rn = (op >>> 3) &&& 7
             show 3 (sprintf "mov [bp], %s" reg16.[rn])
         | 0x89, op when op &&& 0b11000111 = 0b00000111 ->
@@ -59,7 +59,7 @@ let main file =
         | 0x89, op when op &&& 0b11000111 = 0b01000101 ->
             let rn = (op >>> 3) &&& 7
             show 3 (sprintf "mov [di+%x], %s" mem.[ip + 2] reg16.[rn])
-        | 0x89, op when op &&& 0b1100011111 = 0b01000110 ->
+        | 0x89, op when (op &&& 0b11000111 = 0b01000110) && (mem.[ip + 2] = byte 2) ->
             let rn = (op >>> 3) &&& 7
             show 3 (sprintf "mov [bp+%x], %s" mem.[ip + 2] reg16.[rn])
         | 0x89, op when op &&& 0b11000111 = 0b01000111 ->
