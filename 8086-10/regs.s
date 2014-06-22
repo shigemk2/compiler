@@ -78,5 +78,14 @@ mov 2(di), bp
 mov 2(di), si
 mov 2(di), di
 
+movb (bx), al
+movb (bx), cl
+movb (bx), dl
+movb (bx), bl
+movb (bx), ah
+movb (bx), ch
+movb (bx), dh
+movb (bx), bh
+
 .sect .data
 hello: .ascii "hello\n"
