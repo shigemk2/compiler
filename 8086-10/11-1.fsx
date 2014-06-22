@@ -42,8 +42,8 @@ let main file =
         | 0xc6, 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" reg16.[3] mem.[ip + 2] mem.[ip + 3])
         | 0xc6, 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
         | 0x89, 0x4f -> show 3 (sprintf "mov [%s+%x], %s" reg16.[3] mem.[ip + 2] reg16.[1])
-        | 0x89, w ->
-            let rn = (w ||| 0x07) >>> 3
+        | 0x89, op when op &&& 0b11000111 = 0b00000111 ->
+            let rn = op >>> 3
             show 2 (sprintf "mov [bx], %s" reg16.[rn])
         | 0x88, 0x07 -> show 2 (sprintf "mov [%s], al" reg16.[3])
         | 0x88, 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
