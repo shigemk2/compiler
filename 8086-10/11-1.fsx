@@ -53,6 +53,15 @@ let main file =
         | 0x89, op when op &&& 0b11000111 = 0b01000111 ->
             let rn = (op >>> 3) &&& 7 // 0b111と同じ 2進数に慣れないとC言語がわからなくなる(0bがc言語にはない)
             show 3 (sprintf "mov [bx+%x], %s" mem.[ip + 2] reg16.[rn])
+        | 0x89, op when op &&& 0b11000111 = 0b00000100 ->
+            let rn = op >>> 3
+            show 2 (sprintf "mov [si], %s" reg16.[rn])
+        | 0x89, op when op &&& 0b11000111 = 0b00000101 ->
+            let rn = op >>> 3
+            show 2 (sprintf "mov [di], %s" reg16.[rn])
+        | 0x89, op when op &&& 0b11000111 = 0b01000110 ->
+            let rn = op >>> 3
+            show 3 (sprintf "mov [bp], %s" reg16.[rn])
         | 0x89, op when op &&& 0b11000111 = 0b00000111 ->
             let rn = op >>> 3
             show 2 (sprintf "mov [bx], %s" reg16.[rn])
