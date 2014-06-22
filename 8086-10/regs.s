@@ -87,5 +87,14 @@ movb (bx), ch
 movb (bx), dh
 movb (bx), bh
 
-.sect .data
-hello: .ascii "hello\n"
+mov 0x1234, ax
+mov 0x1234, cx
+mov 0x1234, dx
+mov 0x1234, bx
+mov 0x1234, sp
+mov 0x1234, bp
+mov 0x1234, si
+mov 0x1234, di
+
+;; .sect .data
+;; hello: .ascii "hello\n"
