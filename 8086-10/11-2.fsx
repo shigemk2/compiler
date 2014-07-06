@@ -1,8 +1,12 @@
 module hoge
-let mutable ax, bx, cx, dx, sp, bp, si, di, ip = 0, 0, 0, 0, 0, 0, 0, 0, 0
+let mutable ip = 0
 
 let main file =
     ip <- 0
+
+    // reg16 "ax"; "cx"; "dx"; "bx"; "sp"; "bp"; "si"; "di"
+    let reg16 = [| 0; 0; 0; 0; 0; 0; 0; 0 |]
+
     let aout = System.IO.File.ReadAllBytes file
     let read16 (a:byte[]) b =
         (int a.[b]) ||| ((int a.[b + 1]) <<< 8)
@@ -20,47 +24,47 @@ let main file =
     while !running && ip < tsize do
         match int mem.[ip], int mem.[ip + 1] with
         | 0xb8, _ ->
-            ax <- read16 mem (ip + 1)
+            reg16.[0] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xbb, _ ->
-            bx <- read16 mem (ip + 1)
+            reg16.[3] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xc7, 0x07 ->
-            write16 mem bx (read16 mem (ip + 2))
+            write16 mem reg16.[3] (read16 mem (ip + 2))
             ip <- ip + 4
         | 0xc7, 0x47 ->
-            write16 mem (bx + (int mem.[ip + 2])) (read16 mem (ip + 3))
+            write16 mem (reg16.[3] + (int mem.[ip + 2])) (read16 mem (ip + 3))
             ip <- ip + 5
         | 0xc6, 0x07 ->
-            mem.[bx] <- mem.[ip + 2]
+            mem.[reg16.[3]] <- mem.[ip + 2]
             ip <- ip + 3
         | 0xc6, 0x47 ->
-            mem.[bx + (int mem.[ip + 2])] <- mem.[ip + 3]
+            mem.[reg16.[3] + (int mem.[ip + 2])] <- mem.[ip + 3]
             ip <- ip + 4
         | 0x89, 0x07 ->
-            write16 mem bx ax
+            write16 mem reg16.[3] reg16.[0]
             ip <- ip + 2
         | 0x89, 0x4f ->
-            write16 mem (bx + (int mem.[ip + 2])) cx
+            write16 mem (reg16.[3] + (int mem.[ip + 2])) reg16.[1]
             ip <- ip + 3
         | 0xb9, _ ->
-            cx <- read16 mem (ip + 1)
+            reg16.[1] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0x88, 0x07 ->
-            mem.[bx] <- byte ax
+            mem.[reg16.[3]] <- byte reg16.[0]
             ip <- ip + 2
         | 0x88, 0x67 ->
-            mem.[bx + int mem.[ip + 2]] <- byte (ax >>> 8)
+            mem.[reg16.[3] + int mem.[ip + 2]] <- byte (reg16.[0] >>> 8)
             ip <- ip + 3
         | 0xb5, _ ->
-            cx <- ((int mem.[ip + 1]) <<< 8) ||| (cx &&& 0xff)
-            mem.[bx] <- byte ax
+            reg16.[1] <- ((int mem.[ip + 1]) <<< 8) ||| (reg16.[1] &&& 0xff)
+            mem.[reg16.[3]] <- byte reg16.[0]
             ip <- ip + 2
         | 0xb1, _ ->
-            cx <- (cx &&& 0xff00) ||| (int mem.[ip + 1])
+            reg16.[1] <- (reg16.[1] &&& 0xff00) ||| (int mem.[ip + 1])
             ip <- ip + 2
         | 0x89, 0x0f ->
-            write16 mem bx cx
+            write16 mem reg16.[3] reg16.[1]
             ip <- ip + 2
         | 0xc7, 0x06 ->
             write16 mem (read16 mem (ip + 2)) (read16 mem (ip + 4))
@@ -69,32 +73,32 @@ let main file =
             mem.[read16 mem (ip + 2)] <- mem.[ip + 4]
             ip <- ip + 5
         | 0x81, 0x2e ->
-            let addr = bx + read16 mem (ip + 2)
+            let addr = reg16.[3] + read16 mem (ip + 2)
             write16 mem addr ((read16 mem addr) - (read16 mem (ip + 4)))
             ip <- ip + 6
         | 0x80, 0x2e ->
             let addr = read16 mem (ip + 2)
-            mem.[bx + addr] <- mem.[addr] - mem.[ip + 4]
+            mem.[reg16.[3] + addr] <- mem.[addr] - mem.[ip + 4]
             ip <- ip + 5
         | 0xba, _ ->
-            dx <- read16 mem (ip + 1)
+            reg16.[2] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xbc, _ ->
-            sp <- read16 mem (ip + 1)
+            reg16.[4] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xbd, _ ->
-            bp <- read16 mem (ip + 1)
+            reg16.[5] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xbe, _ ->
-            si <- read16 mem (ip + 1)
+            reg16.[6] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xbf, _ ->
-            di <- read16 mem (ip + 1)
+            reg16.[7] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xcd, 0x07 ->
             match int mem.[ip + 2] with
             | 1 ->
-                // exit ax
+                // exit reg16.[0]
                 running := false
             | 4 ->
                 let arg1 = read16 mem (ip + 3)
