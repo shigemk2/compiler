@@ -26,9 +26,6 @@ let main file =
     let movreg8 x y =
         let rn = x - 0xb0
         show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
-    let movadbx x y =
-        let rn = x - 0xb0
-        show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
 
     let running = ref true
 
