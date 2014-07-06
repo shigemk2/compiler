@@ -23,11 +23,9 @@ let main file =
 
     while !running && ip < tsize do
         match int mem.[ip], int mem.[ip + 1] with
-        | 0xb8, _ ->
-            reg16.[0] <- read16 mem (ip + 1)
-            ip <- ip + 3
-        | 0xbb, _ ->
-            reg16.[3] <- read16 mem (ip + 1)
+        | (x, y) when x &&& 0b10111000 = 0b10111000 ->
+            let rn = x &&& 7
+            reg16.[rn] <- read16 mem (ip + 1)
             ip <- ip + 3
         | 0xc7, 0x07 ->
             write16 mem reg16.[3] (read16 mem (ip + 2))
@@ -80,21 +78,6 @@ let main file =
             let addr = read16 mem (ip + 2)
             mem.[reg16.[3] + addr] <- mem.[addr] - mem.[ip + 4]
             ip <- ip + 5
-        | 0xba, _ ->
-            reg16.[2] <- read16 mem (ip + 1)
-            ip <- ip + 3
-        | 0xbc, _ ->
-            reg16.[4] <- read16 mem (ip + 1)
-            ip <- ip + 3
-        | 0xbd, _ ->
-            reg16.[5] <- read16 mem (ip + 1)
-            ip <- ip + 3
-        | 0xbe, _ ->
-            reg16.[6] <- read16 mem (ip + 1)
-            ip <- ip + 3
-        | 0xbf, _ ->
-            reg16.[7] <- read16 mem (ip + 1)
-            ip <- ip + 3
         | 0xcd, 0x07 ->
             match int mem.[ip + 2] with
             | 1 ->
