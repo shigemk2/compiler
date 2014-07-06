@@ -7,6 +7,11 @@ let main file =
     // reg16 "ax"; "cx"; "dx"; "bx"; "sp"; "bp"; "si"; "di"
     let reg16 = [| 0; 0; 0; 0; 0; 0; 0; 0 |]
 
+    let regad rn =
+        match rn with
+        | 7 -> reg16.[3]
+        | _ -> 0
+
     let aout = System.IO.File.ReadAllBytes file
     let read16 (a:byte[]) b =
         (int a.[b]) ||| ((int a.[b + 1]) <<< 8)
@@ -39,12 +44,14 @@ let main file =
         | 0xc6, 0x47 ->
             mem.[reg16.[3] + (int mem.[ip + 2])] <- mem.[ip + 3]
             ip <- ip + 4
-        | 0x89, 0x07 ->
-            write16 mem reg16.[3] reg16.[0]
-            ip <- ip + 2
         | 0x89, 0x4f ->
             write16 mem (reg16.[3] + (int mem.[ip + 2])) reg16.[1]
             ip <- ip + 3
+        | 0x89, op when op &&& 0b11000000 = 0b00000000 ->
+            let rn1 = op &&& 7
+            let rn2 = op >>> 3
+            write16 mem (regad rn1) reg16.[rn2]
+            ip <- ip + 2
         | 0xb9, _ ->
             reg16.[1] <- read16 mem (ip + 1)
             ip <- ip + 3
@@ -60,9 +67,6 @@ let main file =
             ip <- ip + 2
         | 0xb1, _ ->
             reg16.[1] <- (reg16.[1] &&& 0xff00) ||| (int mem.[ip + 1])
-            ip <- ip + 2
-        | 0x89, 0x0f ->
-            write16 mem reg16.[3] reg16.[1]
             ip <- ip + 2
         | 0xc7, 0x06 ->
             write16 mem (read16 mem (ip + 2)) (read16 mem (ip + 4))
