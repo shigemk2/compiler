@@ -31,8 +31,8 @@ let main file =
 
     while !running && ip < tsize do
         match int mem.[ip], int mem.[ip + 1] with
-        | (x, y) when ((0 <= (x - 0xb0)) && ((x - 0xb0) <= 7)) -> movreg8 x y
-        | (x, y) when ((0 <= (x - 0xb8)) && ((x - 0xb8) <= 7)) -> movreg16 x y
+        | (x, y) when x &&& 0b10111000 = 0b10111000 -> movreg16 x y
+        | (x, y) when x &&& 0b10110000 = 0b10110000 -> movreg8 x y
         | 0xc7, 0x07 -> show 4 (sprintf "mov %s, %04x" reg16.[3] (read16 mem (ip + 2)))
         | 0xc7, 0x47 -> show 5 (sprintf "mov [%s+%x], %04x" reg16.[3] mem.[ip + 2] (read16 mem (ip + 3)))
         | 0xc7, 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
