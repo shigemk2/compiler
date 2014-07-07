@@ -62,8 +62,10 @@ let main file =
             let rn2 = op >>> 3
             mem.[reg16.[rn1]] <- byte reg16.[rn2]
             ip <- ip + 2
-        | 0x88, 0x67 ->
-            mem.[reg16.[3] + int mem.[ip + 2]] <- byte (reg16.[0] >>> 8)
+        | 0x88, op when op &&& 0b11000111 = 0b01000111 ->
+            let rn1 = op &&& 7
+            let rn2 = (op &&& 15) >>> 3
+            mem.[(regad rn1) + int mem.[ip + 2]] <- byte (reg16.[rn2] >>> 8)
             ip <- ip + 3
         | 0xb5, _ ->
             reg16.[1] <- ((int mem.[ip + 1]) <<< 8) ||| (reg16.[1] &&& 0xff)
