@@ -57,8 +57,10 @@ let main file =
         | 0xb9, _ ->
             reg16.[1] <- read16 mem (ip + 1)
             ip <- ip + 3
-        | 0x88, 0x07 ->
-            mem.[reg16.[3]] <- byte reg16.[0]
+        | 0x88, op when op &&& 0b11000000 = 0b00000000 ->
+            let rn1 = op &&& 7
+            let rn2 = op >>> 3
+            mem.[reg16.[rn1]] <- byte reg16.[rn2]
             ip <- ip + 2
         | 0x88, 0x67 ->
             mem.[reg16.[3] + int mem.[ip + 2]] <- byte (reg16.[0] >>> 8)
