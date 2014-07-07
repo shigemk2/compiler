@@ -44,8 +44,10 @@ let main file =
         | 0xc6, 0x47 ->
             mem.[reg16.[3] + (int mem.[ip + 2])] <- mem.[ip + 3]
             ip <- ip + 4
-        | 0x89, 0x4f ->
-            write16 mem (reg16.[3] + (int mem.[ip + 2])) reg16.[1]
+        | 0x89, op when op &&& 0b11000111 = 0b01000111 ->
+            let rn1 = op &&& 7
+            let rn2 = (op &&& 15) >>> 3
+            write16 mem ((regad rn1) + (int mem.[ip + 2])) reg16.[rn2]
             ip <- ip + 3
         | 0x89, op when op &&& 0b11000000 = 0b00000000 ->
             let rn1 = op &&& 7
