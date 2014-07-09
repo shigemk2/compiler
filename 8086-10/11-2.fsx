@@ -60,7 +60,7 @@ let main file =
         | 0x88, op when op &&& 0b11000000 = 0b00000000 ->
             let rn1 = op &&& 7
             let rn2 = op >>> 3
-            mem.[reg16.[rn1]] <- byte reg16.[rn2]
+            mem.[(regad rn1)] <- byte reg16.[rn2]
             ip <- ip + 2
         | 0x88, op when op &&& 0b11000111 = 0b01000111 ->
             let rn1 = op &&& 7
