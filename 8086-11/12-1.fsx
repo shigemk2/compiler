@@ -27,15 +27,21 @@ let main file =
         let rn = x &&& 7
         show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
 
+    let movimrm x y =
+        let rn = x &&& 7
+        match y with
+        | 0b00000111 -> show 4 (sprintf "mov %s, %04x" reg16.[3] (read16 mem (ip + 2)))
+        | 0b01000111 -> show 5 (sprintf "mov [%s+%x], %04x" reg16.[3] mem.[ip + 2] (read16 mem (ip + 3)))
+        | 0b00000110 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
+        | _ -> show 1 "; ???"
+
     let running = ref true
 
     while !running && ip < tsize do
         match int mem.[ip], int mem.[ip + 1] with
         | (x, y) when x &&& 0b10111000 = 0b10111000 -> movreg16 x y
         | (x, y) when x &&& 0b10110000 = 0b10110000 -> movreg8 x y
-        | 0xc7, 0x07 -> show 4 (sprintf "mov %s, %04x" reg16.[3] (read16 mem (ip + 2)))
-        | 0xc7, 0x47 -> show 5 (sprintf "mov [%s+%x], %04x" reg16.[3] mem.[ip + 2] (read16 mem (ip + 3)))
-        | 0xc7, 0x06 -> show 6 (sprintf "mov [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
+        | (x, y) when x &&& 0b11000111 = 0b11000111 -> movimrm x y
         | 0xc6, 0x07 -> show 3 (sprintf "mov byte [%s], %02x" reg16.[3] mem.[ip + 2])
         | 0xc6, 0x47 -> show 4 (sprintf "mov byte [%s+%x], %02x" reg16.[3] mem.[ip + 2] mem.[ip + 3])
         | 0xc6, 0x06 -> show 5 (sprintf "mov byte [%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
