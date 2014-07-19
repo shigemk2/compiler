@@ -20,19 +20,27 @@ let main file =
     let regad = [|"??"; "??"; "??"; "??"; "si"; "di"; "bp"; "bx"|]
     let reg8  = [|"al"; "cl"; "dl"; "bl"; "ah"; "ch"; "dh"; "bh"|]
 
-    let moderm () =
+    let modrm () =
         let mode = (int mem.[ip + 1]) >>> 6
         let rm = (int mem.[ip + 1]) &&& 7
         match mode, rm with
-        | 0b00, 0b111 -> "[bx]"
-        | _, _ -> "??"
+        | 0b00, 0b111 -> "[bx]", 0
+        | 0b01, 0b111 -> sprintf "[bx+%x]" mem.[ip + 2], 1
+        | 0b11, 0b111 -> sprintf "[bx+%x]" mem.[ip + 2], 1
+        | _, _ -> "??", 0
 
     let movreg16 x y =
         let rn = x &&& 7
         show 3 (sprintf "mov %s, %04x" reg16.[rn] (read16 mem (ip + 1)))
+
     let movreg8 x y =
         let rn = x &&& 7
         show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
+
+    let movreg88 x y =
+        let rn = x &&& 7
+        let opr, len = modrm()
+        show (2+len) (sprintf "mov %s, %s" opr reg8.[rn])
 
     let movimrmw x y =
         let rn = x &&& 7
@@ -63,10 +71,6 @@ let main file =
         match int mem.[ip], int mem.[ip + 1] with
         | 0x80, 0x2e -> show 5 (sprintf "sub byte[%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
         | 0x81, 0x2e -> show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
-        | 0x88, op when op &&& 0b11000111 = 0b00000111 ->
-            let rn = (op >>> 3) &&& 7
-            show 2 (sprintf "mov %s, %s" (moderm()) reg8.[rn])
-        | 0x88, 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
         | 0x89, op when op &&& 0b11000000 = 0b01000000 ->
             let rn1 = op &&& 7
             let rn2 = (op >>> 3) &&& 7
@@ -95,6 +99,7 @@ let main file =
             show 2 (sprintf "int %x" n)
         | (x, y) when x &&& 0b10111000 = 0b10111000 -> movreg16 x y
         | (x, y) when x &&& 0b10110000 = 0b10110000 -> movreg8 x y
+        | (x, y) when x &&& 0b10001000 = 0b10001000 -> movreg88 x y
         | (x, y) when x &&& 0b11000111 = 0b11000110 -> movimrm x y
         | (x, y) when x &&& 0b11000111 = 0b11000111 -> movimrmw x y
         | (x, y) when x &&& 0b00000001 = 0b00000001 -> add x y
