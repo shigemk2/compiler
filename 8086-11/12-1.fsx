@@ -20,6 +20,13 @@ let main file =
     let regad = [|"??"; "??"; "??"; "??"; "si"; "di"; "bp"; "bx"|]
     let reg8  = [|"al"; "cl"; "dl"; "bl"; "ah"; "ch"; "dh"; "bh"|]
 
+    let moderm () =
+        let mode = (int mem.[ip + 1]) >>> 6
+        let rm = (int mem.[ip + 1]) &&& 7
+        match mode, rm with
+        | 0b00, 0b111 -> "[bx]"
+        | _, _ -> "??"
+
     let movreg16 x y =
         let rn = x &&& 7
         show 3 (sprintf "mov %s, %04x" reg16.[rn] (read16 mem (ip + 1)))
@@ -54,6 +61,12 @@ let main file =
 
     while !running && ip < tsize do
         match int mem.[ip], int mem.[ip + 1] with
+        | 0x80, 0x2e -> show 5 (sprintf "sub byte[%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
+        | 0x81, 0x2e -> show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
+        | 0x88, op when op &&& 0b11000111 = 0b00000111 ->
+            let rn = (op >>> 3) &&& 7
+            show 2 (sprintf "mov %s, %s" (moderm()) reg8.[rn])
+        | 0x88, 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
         | 0x89, op when op &&& 0b11000000 = 0b01000000 ->
             let rn1 = op &&& 7
             let rn2 = (op >>> 3) &&& 7
@@ -65,12 +78,7 @@ let main file =
             let rn1 = op &&& 7
             let rn2 = op >>> 3
             show 2 (sprintf "mov [%s], %s" regad.[rn1] reg16.[rn2])
-        | 0x88, op when op &&& 0b11000111 = 0b00000111 ->
-            let rn = (op >>> 3) &&& 7
-            show 2 (sprintf "mov [bx], %s" reg8.[rn])
-        | 0x88, 0x67 -> show 3 (sprintf "mov [%s+%x], ah" reg16.[3] mem.[ip + 2])
-        | 0x81, 0x2e -> show 6 (sprintf "sub [%04x], %04x" (read16 mem (ip + 2)) (read16 mem (ip + 4)))
-        | 0x80, 0x2e -> show 5 (sprintf "sub byte[%04x], %02x" (read16 mem (ip + 2)) mem.[ip + 4])
+        | 0xa3, 0x2c -> show 3 (sprintf "mov [%04x], %s" (read16 mem (ip + 1)) reg16.[0])
         | 0xcd, 0x07 ->
             show 2 "int 7"
             match int mem.[ip] with
@@ -83,7 +91,6 @@ let main file =
             | _ ->
                 show 1 "; ???"
                 running := false
-        | 0xa3, 0x2c -> show 3 (sprintf "mov [%04x], %s" (read16 mem (ip + 2)) reg16.[0])
         | 0xcd, n ->
             show 2 (sprintf "int %x" n)
         | (x, y) when x &&& 0b10111000 = 0b10111000 -> movreg16 x y
