@@ -35,10 +35,6 @@ let main file =
 
     let movreg8 x y =
         let rn = x &&& 7
-        show 2 (sprintf "mov %s, %01x" reg8.[rn] mem.[ip + 1])
-
-    let movreg88 x y =
-        let rn = x &&& 7
         let opr, len = modrm()
         show (2+len) (sprintf "mov %s, %s" opr reg8.[rn])
 
@@ -99,7 +95,7 @@ let main file =
             show 2 (sprintf "int %x" n)
         | (x, y) when x &&& 0b10111000 = 0b10111000 -> movreg16 x y
         | (x, y) when x &&& 0b10110000 = 0b10110000 -> movreg8 x y
-        | (x, y) when x &&& 0b10001000 = 0b10001000 -> movreg88 x y
+        | (x, y) when x &&& 0b10001000 = 0b10001000 -> movreg8 x y
         | (x, y) when x &&& 0b11000111 = 0b11000110 -> movimrm x y
         | (x, y) when x &&& 0b11000111 = 0b11000111 -> movimrmw x y
         | (x, y) when x &&& 0b00000001 = 0b00000001 -> add x y
