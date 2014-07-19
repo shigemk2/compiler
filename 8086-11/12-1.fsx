@@ -121,4 +121,7 @@ let test() =
     printfn "../8086-10/regs2.out"
     main "../8086-10/regs2.out"
     printfn "-------------------"
+    printfn "../8086-11/add.out"
+    main "../8086-11/add.out"
+    printfn "-------------------"
 
