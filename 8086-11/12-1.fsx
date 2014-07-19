@@ -73,7 +73,6 @@ let main file =
             match int mem.[ip] with
             | 1 ->
                 show 1 "; exit"
-                running := false
             | 4 ->
                 show 1 "; write"
                 show 2 "; arg"
@@ -81,6 +80,9 @@ let main file =
             | _ ->
                 show 1 "; ???"
                 running := false
+        | 0x01, 0x07 -> show 2 (sprintf "add [%s], %s" reg16.[3] reg16.[0])
+        | 0x01, 0x06 -> show 4 (sprintf "add [%04x], %s" (read16 mem (ip + 2)) reg16.[0])
+        | 0xa3, 0x2c -> show 3 (sprintf "mov [%04x], %s" (read16 mem (ip + 2)) reg16.[0])
         | 0xcd, n ->
             show 2 (sprintf "int %x" n)
         | _ ->
